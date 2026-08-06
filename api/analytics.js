@@ -21,7 +21,9 @@ function requestBody(req) {
 }
 
 function clean(value, maxLength) {
-  return String(value || "").replace(/[^a-zA-Z0-9._:-]/g, "").slice(0, maxLength);
+  return String(value || "")
+    .replace(/[^a-zA-Z0-9._:-]/g, "")
+    .slice(0, maxLength);
 }
 
 function clientIp(req) {
@@ -37,46 +39,109 @@ function allowed(req) {
   const bucket = !existing || existing.resetAt <= now
     ? { count: 0, resetAt: now + 60_000 }
     : existing;
+
   bucket.count += 1;
   RATE_BUCKETS.set(key, bucket);
 
-  if (RATE_BUCKETS.size > 5000) {
+  if (RATE_BUCKETS.size > 5_000) {
     for (const [entryKey, entry] of RATE_BUCKETS) {
       if (entry.resetAt <= now) RATE_BUCKETS.delete(entryKey);
     }
   }
+
   return bucket.count <= 120;
 }
 
-function validWebhook(value) {
+function validHttpsUrl(value) {
   if (!value) return null;
   try {
     const url = new URL(value);
-    if (url.protocol !== "https:") return null;
-    return url;
+    return url.protocol === "https:" ? url : null;
   } catch {
     return null;
   }
 }
 
-async function forward(record) {
-  const webhook = validWebhook(process.env.ANALYTICS_WEBHOOK_URL);
-  if (!webhook) return;
+function webhookUrl() {
+  return validHttpsUrl(process.env.ANALYTICS_WEBHOOK_URL);
+}
 
+function supabaseConfig() {
+  const url = validHttpsUrl(process.env.SUPABASE_URL);
+  const key = String(
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    ""
+  ).trim();
+  const table = String(
+    process.env.SUPABASE_ANALYTICS_TABLE || "practice_campaign_events"
+  ).trim();
+
+  if (!url || !key || !/^[a-zA-Z_][a-zA-Z0-9_]{0,62}$/.test(table)) return null;
+  return { url, key, table };
+}
+
+async function postWithTimeout(url, options, timeoutMs) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3500);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(webhook, {
-      method: "POST",
-      signal: controller.signal,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(record)
-    });
-    if (!response.ok) console.error("analytics_webhook_error", response.status);
-  } catch (error) {
-    console.error("analytics_webhook_error", error?.name || "unknown");
+    return await fetch(url, { ...options, signal: controller.signal });
   } finally {
     clearTimeout(timer);
+  }
+}
+
+async function forwardWebhook(record) {
+  const url = webhookUrl();
+  if (!url) return;
+
+  try {
+    const response = await postWithTimeout(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(record)
+    }, 3_500);
+
+    if (!response.ok) {
+      console.error("analytics_webhook_error", response.status);
+    }
+  } catch (error) {
+    console.error("analytics_webhook_error", error?.name || "unknown");
+  }
+}
+
+async function writeSupabase(record) {
+  const config = supabaseConfig();
+  if (!config) return;
+
+  const endpoint = new URL(`/rest/v1/${config.table}`, config.url);
+  const row = {
+    event: record.event,
+    source: record.source,
+    session_id: record.sessionId,
+    depth: record.depth ?? null,
+    path: record.path,
+    occurred_at: record.timestamp
+  };
+
+  try {
+    const response = await postWithTimeout(endpoint, {
+      method: "POST",
+      headers: {
+        apikey: config.key,
+        authorization: `Bearer ${config.key}`,
+        "content-type": "application/json",
+        prefer: "return=minimal"
+      },
+      body: JSON.stringify(row)
+    }, 3_500);
+
+    if (!response.ok) {
+      const detail = clean(await response.text(), 220);
+      console.error("analytics_supabase_error", response.status, detail);
+    }
+  } catch (error) {
+    console.error("analytics_supabase_error", error?.name || "unknown");
   }
 }
 
@@ -88,7 +153,11 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       events: [...ALLOWED_EVENTS],
-      webhookConfigured: Boolean(validWebhook(process.env.ANALYTICS_WEBHOOK_URL))
+      destinations: {
+        vercelLogs: true,
+        supabaseConfigured: Boolean(supabaseConfig()),
+        webhookConfigured: Boolean(webhookUrl())
+      }
     });
   }
 
@@ -126,9 +195,15 @@ module.exports = async function handler(req, res) {
     timestamp: new Date().toISOString()
   };
 
-  // Intentionally excludes message text, email addresses, phone numbers, and scanned URLs.
+  // Intentionally excludes message text, email addresses, phone numbers,
+  // scanned URLs, IP addresses, and the full conversation transcript.
   console.log("campaign_event", JSON.stringify(record));
-  await forward(record);
+
+  // Analytics is best-effort and must never break the visitor's business flow.
+  await Promise.allSettled([
+    writeSupabase(record),
+    forwardWebhook(record)
+  ]);
 
   return res.status(202).json({ ok: true });
 };
