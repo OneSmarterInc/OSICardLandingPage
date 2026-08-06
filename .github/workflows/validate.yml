@@ -4,13 +4,13 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [agent/real-scan-chat-email]
+    branches: [agent/real-scan-chat-email, main]
 
 permissions:
   contents: read
 
 jobs:
-  syntax:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -19,5 +19,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate server JavaScript
+      - name: Install production dependency
+        run: npm install --ignore-scripts --no-fund
+      - name: Validate JavaScript syntax
         run: npm run check
+      - name: Run static launch checks
+        run: npm test
+      - name: Audit production dependency
+        run: npm audit --omit=dev --audit-level=high
