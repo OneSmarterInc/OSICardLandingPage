@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OneSmarter Practice Agent</title>
+  <meta name="description" content="Talk with the OneSmarter practice agent or run a factual AI-visibility scan of your practice website.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0A0A0B;--panel:#151517;--panel2:#1e1e22;--text:#f4f4f5;--muted:#a1a1aa;--line:#2d2d32;--red:#DC2626;--focus:#7DBAFF;--good:#86efac;--warn:#fde68a;--bad:#fca5a5}
+    *{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(70rem 35rem at 80% -10%,rgba(220,38,38,.12),transparent 60%),var(--bg);color:var(--text);font-family:Archivo,system-ui,sans-serif}
+    a{color:inherit}:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.wrap{width:min(980px,100%);margin:auto;padding:0 clamp(16px,4vw,40px)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0}.brand{font-size:20px;font-weight:700;letter-spacing:-.03em}.brand span{color:var(--red)}.human{font-size:13px;color:var(--muted)}
+    main{padding:24px 0 48px}.kicker{color:var(--red);font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase}h1{max-width:760px;margin:12px 0 10px;font-size:clamp(30px,6vw,56px);line-height:1.04;letter-spacing:-.04em}.accent{font-family:"Instrument Serif",serif;font-style:italic;color:var(--red);font-weight:400}.lead{max-width:720px;color:var(--muted);font-size:16px;line-height:1.65}
+    .agent{margin-top:26px;border:1px solid var(--line);border-radius:18px;background:rgba(21,21,23,.92);overflow:hidden;box-shadow:0 22px 70px rgba(0,0,0,.28)}.agentHead{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:var(--red)}.log{height:min(56vh,520px);min-height:360px;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}.msg{max-width:88%;padding:12px 14px;border-radius:15px;line-height:1.55;font-size:15px;white-space:pre-wrap}.assistant{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}.user{align-self:flex-end;background:var(--red);border-bottom-right-radius:4px}.system{align-self:center;color:var(--muted);font-size:13px;padding:4px}.findings{width:min(100%,760px);align-self:flex-start;display:grid;gap:9px}.finding{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}.findingTop{display:flex;justify-content:space-between;gap:14px;font-weight:600}.badge{font-size:11px;text-transform:uppercase;letter-spacing:.08em}.badge.good{color:var(--good)}.badge.review,.badge.missing{color:var(--warn)}.badge.issue{color:var(--bad)}.evidence,.recommendation{margin-top:7px;color:var(--muted);font-size:13px;line-height:1.5}.recommendation strong{color:var(--text)}
+    .composer{display:flex;gap:9px;padding:13px;border-top:1px solid var(--line)}.composer input{min-width:0;flex:1;border:1px solid #3f3f46;background:#111113;color:var(--text);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px}.composer button{border:0;border-radius:12px;background:var(--red);color:white;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}.composer button:disabled{opacity:.55;cursor:not-allowed}.note{padding:0 16px 13px;color:var(--muted);font-size:11.5px}
+    .trust{margin-top:30px;border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:12px;line-height:1.8}.trust strong{color:var(--text)}.pipes{overflow-wrap:normal}.pipes span{white-space:nowrap}.error{color:var(--bad)}
+    @media(max-width:560px){header{align-items:flex-start}.human{text-align:right}.log{min-height:430px}.msg{max-width:94%}.composer button{padding-inline:14px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">One<span>Smarter</span></div>
+      <div class="human">Prefer a human? <a href="mailto:care@onesmarter.com">care@onesmarter.com</a></div>
+    </header>
+    <main>
+      <div class="kicker">For healthcare providers</div>
+      <h1>Meet the agent. Get a <span class="accent">real website scan.</span></h1>
+      <p class="lead">Ask about the business side of your practice, or enter your practice website. Findings are generated from what the scanner actually retrieves—no sample results and no invented scores.</p>
+
+      <section class="agent" aria-label="OneSmarter practice agent">
+        <div class="agentHead"><span class="dot" aria-hidden="true"></span>OneSmarter practice agent</div>
+        <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <form id="composer" class="composer">
+          <label for="message" style="position:absolute;left:-9999px">Your message or website address</label>
+          <input id="message" autocomplete="off" placeholder="Type a message or practice website" required>
+          <button id="send" type="submit">Send</button>
+        </form>
+        <div class="note">This is an AI agent for practice operations. Do not enter patient information. The visibility scan is not a medical, legal, tax, ranking, or WCAG audit.</div>
+      </section>
+
+      <div class="trust">
+        <strong>One Smarter, Inc.</strong> · <a href="https://onesmarter.com/trust-center">Trust Center</a> · <a href="https://onesmarter.com/privacy">Privacy</a><br>
+        <span class="pipes"><span>SOC 2 Type II Attested |</span> <span>ISO/IEC 27001 Certified |</span> <span>HIPAA Security Rule Compliance Assessment Completed</span></span><br>
+        Consistent with federal website-accessibility standards (WCAG 2.1 AA, ADA / ACA Section 1557).
+      </div>
+    </main>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+  const sourceTag = new URLSearchParams(location.search).get("s") || "none";
+  const log = document.getElementById("log");
+  const form = document.getElementById("composer");
+  const input = document.getElementById("message");
+  const send = document.getElementById("send");
+  let history = [];
+  let latestScan = null;
+  let awaitingEmail = false;
+
+  const openings = {
+    qr: "You scanned the card—so here’s the question: when a patient asks AI to find a doctor, can it understand your practice website? Send me the website address and I’ll run a factual check now.",
+    qra: "You scanned the card—so here’s the question: when a patient asks AI to find a doctor, can it understand your practice website? Send me the website address and I’ll run a factual check now.",
+    qrb: "The card said we take care of the rest—the books, billing, back office, people, trust, and growth. What is taking too much of your week right now?",
+    none: "I’m OneSmarter’s practice agent. I can discuss the business side of your practice or run a factual visibility scan of your public website. Where should we start?"
+  };
+
+  function addMessage(text, role, remember = true) {
+    const div = document.createElement("div");
+    div.className = `msg ${role}`;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    if (remember && (role === "user" || role === "assistant")) {
+      history.push({ role, content: text });
+      history = history.slice(-12);
+    }
+    return div;
+  }
+
+  function addSystem(text, isError = false) {
+    const div = document.createElement("div");
+    div.className = `system${isError ? " error" : ""}`;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  function looksLikeWebsite(text) {
+    return /(?:https?:\/\/)?(?:www\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z]{2,})(?:[^\s]*)?/i.test(text);
+  }
+  function extractWebsite(text) {
+    return text.match(/(?:https?:\/\/)?(?:www\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z]{2,})(?:[^\s]*)?/i)?.[0] || text;
+  }
+  function extractEmail(text) { return text.match(/[^\s@]+@[^\s@]+\.[^\s@]+/)?.[0] || ""; }
+
+  async function post(payload) {
+    const response = await fetch("/api/practice", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "The request failed.");
+    return data;
+  }
+
+  function renderFindings(scan) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "findings";
+    for (const finding of scan.findings || []) {
+      const card = document.createElement("div");
+      card.className = "finding";
+      const top = document.createElement("div");
+      top.className = "findingTop";
+      const label = document.createElement("span");
+      label.textContent = finding.label;
+      const status = document.createElement("span");
+      status.className = `badge ${finding.status}`;
+      status.textContent = finding.status === "good" ? "Good signal" : finding.status === "issue" ? "Issue" : finding.status === "missing" ? "Not detected" : "Review";
+      top.append(label, status);
+      const evidence = document.createElement("div");
+      evidence.className = "evidence";
+      evidence.textContent = finding.evidence;
+      const recommendation = document.createElement("div");
+      recommendation.className = "recommendation";
+      const strong = document.createElement("strong");
+      strong.textContent = "Next step: ";
+      recommendation.append(strong, document.createTextNode(finding.recommendation));
+      card.append(top, evidence, recommendation);
+      wrapper.appendChild(card);
+    }
+    log.appendChild(wrapper);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  async function runScan(url) {
+    addMessage(`Scan ${url}`, "user");
+    const progress = addSystem("Fetching the public website and checking measured signals…");
+    try {
+      const data = await post({ action: "scan", url });
+      latestScan = data.scan;
+      progress.remove();
+      addMessage(`The scan completed for ${latestScan.finalUrl}. I checked the fetched HTML, HTTPS response, metadata, structured data, robots.txt, llms.txt, headings, image-alt signals, and visible contact signals.`, "assistant");
+      renderFindings(latestScan);
+      addMessage("These findings describe only what was detected in this fetch. Want the written report? Enter the email address where I should send it.", "assistant");
+      awaitingEmail = true;
+    } catch (error) {
+      progress.remove();
+      addMessage(`I could not complete that scan: ${error.message}`, "assistant");
+    }
+  }
+
+  async function sendReport(email) {
+    const progress = addSystem(`Sending the measured scan report to ${email}…`);
+    try {
+      await post({ action: "report", email, scan: latestScan });
+      progress.remove();
+      addMessage(`Sent. The report is on its way to ${email}.`, "assistant");
+      awaitingEmail = false;
+    } catch (error) {
+      progress.remove();
+      addMessage(`The report was not sent: ${error.message}`, "assistant");
+    }
+  }
+
+  async function askAgent(message) {
+    const progress = addSystem("Agent is thinking…");
+    try {
+      const data = await post({ action: "chat", message, history, sourceTag, scan: latestScan });
+      progress.remove();
+      addMessage(data.reply, "assistant");
+    } catch (error) {
+      progress.remove();
+      addMessage(`The agent is temporarily unavailable: ${error.message} You can still run a website scan or email care@onesmarter.com.`, "assistant");
+    }
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    send.disabled = true;
+    try {
+      const email = extractEmail(text);
+      if (awaitingEmail && latestScan && email) {
+        addMessage(email, "user");
+        await sendReport(email);
+      } else if (looksLikeWebsite(text)) {
+        await runScan(extractWebsite(text));
+      } else {
+        addMessage(text, "user");
+        await askAgent(text);
+      }
+    } finally {
+      send.disabled = false;
+      input.focus();
+    }
+  });
+
+  addMessage(openings[sourceTag] || openings.none, "assistant");
+})();
+</script>
+</body>
+</html>
