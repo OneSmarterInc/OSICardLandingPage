@@ -20,34 +20,44 @@
     .trust{margin-top:30px;border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:12px;line-height:1.8}.trust strong{color:var(--text)}.pipes{overflow-wrap:normal}.pipes span{white-space:nowrap}.error{color:var(--bad)}
     @media(max-width:560px){header{align-items:flex-start}.human{text-align:right}.log{min-height:430px}.msg{max-width:94%}.composer button{padding-inline:14px}}
     
-    /* ==== Story sections (v1.2): alternating bands matching onesmarter.com ==== */
-    .band{padding:56px 0}
-    .band--white{background:#ffffff;color:#0b0b0d}
-    .band--gray{background:#f6f7f9;color:#0b0b0d}
-    .band--dark{background:#09090b;color:var(--text)}
-    .band .inner{width:min(980px,100%);margin:auto;padding:0 clamp(16px,4vw,40px)}
-    .band .kicker{color:#dc2626}
-    .band h2{margin:10px 0 0;font-size:clamp(22px,3.4vw,32px);line-height:1.15;letter-spacing:-.02em}
-    .band--white h2,.band--gray h2{color:#0b0b0d}
-    .bandIntro{max-width:46em;line-height:1.65;font-size:15px;margin:12px 0 0}
-    .band--white .bandIntro,.band--gray .bandIntro{color:#52525b}
-    .band--dark .bandIntro{color:var(--muted)}
-    .areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:22px}
-    .area{border-radius:12px;padding:16px;border:1px solid rgba(9,9,11,.12);background:#fff}
-    .band--gray .area{background:#fff}
-    .band--white .area{background:#fafafa}
-    .area h3{margin:0;font-size:15px;display:flex;align-items:center;gap:8px;color:#0b0b0d}
-    .area h3::before{content:'';width:7px;height:7px;border-radius:50%;background:#dc2626;flex:none}
-    .area p{margin:8px 0 0;color:#52525b;font-size:13.5px;line-height:1.6}
-    .area a{color:#0b0b0d;font-size:12.5px}
-    .scanStrip{border:1px solid rgba(9,9,11,.12);border-left:3px solid #dc2626;border-radius:12px;padding:18px 20px;margin-top:22px;background:#fff}
-    .scanStrip h3{margin:0;font-size:16px;color:#0b0b0d}
-    .scanStrip p{color:#52525b;font-size:14px;line-height:1.65;margin:8px 0 0;max-width:54em}
-    .scanStrip a{color:#0b0b0d}
-    .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+    /* ==== v1.3: two-column layout — value props left, Mira sticky right ====
+       Mobile (the QR audience) stacks with the agent FIRST — the card says
+       "Scan and meet one", so Mira is the first thing a phone shows. ==== */
+    .layout{width:min(1220px,100%);margin:auto;padding:0 clamp(16px,3vw,40px);display:flex;flex-direction:column;gap:22px}
+    .rail{min-width:0}
+    .main{min-width:0}
+    @media(min-width:1024px){
+      .layout{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:26px;align-items:start}
+      .rail{order:2;position:sticky;top:16px}
+      .main{order:1}
+      .rail .log{height:min(58vh,560px);min-height:380px}
+    }
+    /* value blocks: white/gray "sheets" carrying the site's light-band look */
+    .block{border-radius:16px;padding:clamp(20px,3vw,30px);margin-top:22px}
+    .block--white{background:#ffffff;color:#0b0b0d}
+    .block--gray{background:#f6f7f9;color:#0b0b0d}
+    .block--dark{background:rgba(21,21,23,.7);border:1px solid var(--line)}
+    .block .kicker{color:#dc2626}
+    .block h2{margin:8px 0 0;font-size:clamp(20px,2.6vw,27px);line-height:1.15;letter-spacing:-.02em}
+    .block--white h2,.block--gray h2{color:#0b0b0d}
+    .blockIntro{max-width:46em;line-height:1.65;font-size:14.5px;margin:10px 0 0}
+    .block--white .blockIntro,.block--gray .blockIntro{color:#52525b}
+    .props{display:grid;gap:12px;margin-top:18px}
+    @media(min-width:700px){.props{grid-template-columns:1fr 1fr}}
+    .prop{border-radius:12px;padding:16px;border:1px solid rgba(9,9,11,.1);background:#fafafa}
+    .block--gray .prop{background:#fff}
+    .prop h3{margin:0;font-size:16px;line-height:1.3;color:#0b0b0d}
+    .prop h3 span{color:#dc2626}
+    .prop .proof{margin:8px 0 0;color:#52525b;font-size:13px;line-height:1.6}
+    .prop .askBtn{margin-top:10px;display:inline-block;background:none;border:0;padding:0;font:inherit;font-size:12.5px;font-weight:600;color:#0b0b0d;text-decoration:underline;cursor:pointer}
+    .scanStrip{border:1px solid rgba(9,9,11,.12);border-left:3px solid #dc2626;border-radius:12px;padding:16px 18px;margin-top:16px;background:#fff}
+    .scanStrip h3{margin:0;font-size:15.5px;color:#0b0b0d}
+    .scanStrip p{color:#52525b;font-size:13.5px;line-height:1.65;margin:8px 0 0}
+    .scanStrip .askBtn{background:none;border:0;padding:0;font:inherit;font-size:12.5px;font-weight:600;color:#0b0b0d;text-decoration:underline;cursor:pointer}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
     .badgePill{border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:12.5px;letter-spacing:.04em;background:rgba(21,21,23,.55);white-space:nowrap;color:var(--text)}
     .badgePill strong{color:var(--red);font-weight:600}
-    .trustNote{color:var(--muted);font-size:13px;line-height:1.65;margin-top:14px;max-width:54em}
+    .trustNote{color:var(--muted);font-size:13px;line-height:1.65;margin-top:12px}
     .trustNote a{color:var(--text)}
     .signature{font-family:"Instrument Serif",serif;font-style:italic;color:var(--red);font-size:clamp(18px,3vw,24px);display:flex;align-items:center;gap:14px;margin-top:26px}
     .signature::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,rgba(220,38,38,.6),transparent)}
@@ -66,7 +76,14 @@
       <div class="kicker">For healthcare providers</div>
       <h1>Meet the agent. Get a <span class="accent">real website scan.</span></h1>
       <p class="lead">Ask about the business side of your practice, or enter your practice website. Findings are generated from what the scanner actually retrieves—no sample results and no invented scores.</p>
+    </main>
+  </div>
 
+  <!-- ==== v1.3 layout: sticky Mira rail (right on desktop, FIRST on mobile),
+       physician value propositions in the main column. Copy rule: outcomes in
+       the headline, approved capabilities as the proof line — no new claims. ==== -->
+  <div class="layout">
+    <div class="rail">
       <section id="practice-agent" class="agent" aria-label="OneSmarter practice agent" aria-describedby="agent-note">
         <div class="agentHead"><span class="dot" aria-hidden="true"></span>Mira · the OneSmarter Guide — practice agent. No signup, no forms.</div>
         <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions text"></div>
@@ -77,57 +94,54 @@
         </form>
         <div id="agent-note" class="note">This is an AI agent for practice operations. Do not enter patient information. The visibility scan is not a medical, legal, tax, ranking, or WCAG audit.</div>
       </section>
+    </div>
 
+    <div class="main">
+      <section class="block block--white" aria-labelledby="value-h">
+        <div class="kicker">What changes for you</div>
+        <h2 id="value-h">What OneSmarter does for a practice — and for you.</h2>
+        <p class="blockIntro">Five promises, each backed by the same team and tools. Ask Mira about any of them — the buttons drop the question straight into the chat.</p>
+        <div class="props">
+          <div class="prop"><h3>Get <span>paid</span> for the work you already did.</h3><p class="proof">Cash flow · billing · AP · accounting — kept tight, so the work you do turns into revenue instead of resubmissions.</p><button type="button" class="askBtn" data-ask="How would you get my claims paid faster and make my cash flow predictable?">Ask Mira how →</button></div>
+          <div class="prop"><h3>The office <span>closes</span> when the clinic does.</h3><p class="proof">Scheduling · front desk · workflow — the paperwork stops eating your evenings.</p><button type="button" class="askBtn" data-ask="How do you keep a practice's schedule, front desk, and workflow running on time?">Ask Mira how →</button></div>
+          <div class="prop"><h3>Hire without the <span>paperwork spiral</span>.</h3><p class="proof">HR · hiring · credentialing — from job post to credentialed provider.</p><button type="button" class="askBtn" data-ask="How do you handle hiring and credentialing for a medical practice?">Ask Mira how →</button></div>
+          <div class="prop"><h3>Audit-ready without <span>thinking</span> about audits.</h3><p class="proof">HIPAA · SOC 2 · ISO/IEC 27001 readiness · security — compliance handled like it&rsquo;s our license on the line.</p><button type="button" class="askBtn" data-ask="How do you keep a practice audit-ready for HIPAA and security requirements?">Ask Mira how →</button></div>
+          <div class="prop"><h3>Be the practice <span>AI recommends</span>.</h3><p class="proof">Visibility · reputation · patient comms — findable by patients, and by the AI tools they ask.</p><button type="button" class="askBtn" data-ask="How do I become the practice that AI tools recommend to patients?">Ask Mira how →</button></div>
+        </div>
+      </section>
 
+      <section class="block block--gray" aria-labelledby="scan-h">
+        <div class="kicker">Free — no strings</div>
+        <h2 id="scan-h">Where does your practice stand with AI search?</h2>
+        <div class="scanStrip">
+          <h3>The AI-visibility scan</h3>
+          <p>Give Mira your website address and she checks what an AI assistant can actually work with: HTTPS, structured data describing the practice, whether AI crawlers are allowed in, llms.txt, headings, image alt-text signals, and visible contact details. Every finding comes with its evidence — no sample results, no invented scores — and the full written report can be emailed. <button type="button" class="askBtn" data-ask-focus="true">Start the scan →</button></p>
+        </div>
+      </section>
 
+      <section class="block block--dark" aria-labelledby="trust-h">
+        <div class="kicker">Why practices trust us</div>
+        <h2 id="trust-h">Compliance isn&rsquo;t a feature. <span style="color:var(--red)">It&rsquo;s the foundation.</span></h2>
+        <div class="badges">
+          <span class="badgePill">SOC 2 Type II <strong>Attested</strong></span>
+          <span class="badgePill">ISO/IEC 27001 <strong>Certified</strong></span>
+          <span class="badgePill">HIPAA Security Rule <strong>Assessed</strong></span>
+        </div>
+        <p class="trustNote">OneSmarter&rsquo;s own operations are independently examined — SOC 2 Type II attestation, ISO/IEC 27001 certification, and a completed HIPAA Security Rule compliance assessment. The same discipline shows up in the work we do for practices. Details live in our <a href="https://onesmarter.com/trust-center">Trust Center</a>, and everything else about us is at <a href="https://onesmarter.com">onesmarter.com</a>.</p>
+        <div class="signature" aria-hidden="true">Is your practice AI ready?</div>
+      </section>
+    </div>
+  </div>
     </main>
   </div>
-
-  <!-- ==== Story bands (v1.2): alternating light/dark rhythm from onesmarter.com ==== -->
-  <section class="band band--white" aria-labelledby="areas-h">
-    <div class="inner">
-      <div class="kicker">The rest of it</div>
-      <h2 id="areas-h">The business side of your practice — handled.</h2>
-      <p class="bandIntro">Five areas, one team. AI where it makes your practice faster, people where it matters. Ask Mira above about any of them.</p>
-      <div class="areas">
-        <div class="area"><h3>Money</h3><p>Cash flow · billing · AP · accounting. The work you do turns into revenue, not resubmissions.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
-        <div class="area"><h3>Operations</h3><p>Scheduling · front desk · workflow. The office runs on time, and closes on time.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
-        <div class="area"><h3>People</h3><p>HR · hiring · credentialing. From job post to credentialed provider without the paperwork spiral.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
-        <div class="area"><h3>Trust</h3><p>HIPAA · SOC 2 · ISO/IEC 27001 readiness · security. Compliance handled like it&rsquo;s our license on the line.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
-        <div class="area"><h3>Growth</h3><p>Visibility · reputation · patient comms. Findable by patients — and by the AI tools they ask.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="band band--gray" aria-labelledby="scan-h">
-    <div class="inner">
-      <div class="kicker">Free — no strings</div>
-      <h2 id="scan-h">Where does your practice stand with AI search?</h2>
-      <div class="scanStrip">
-        <h3>The AI-visibility scan</h3>
-        <p>Give Mira your website address and she checks what an AI assistant can actually work with: HTTPS, structured data describing the practice, whether AI crawlers are allowed in, llms.txt, headings, image alt-text signals, and visible contact details. Every finding comes with its evidence — no sample results, no invented scores — and you can have the full written report emailed. <a href="#practice-agent">Start the scan ↑</a></p>
-      </div>
-    </div>
-  </section>
-
-  <section class="band band--dark" aria-labelledby="trust-h">
-    <div class="inner">
-      <div class="kicker">Why practices trust us</div>
-      <h2 id="trust-h">Compliance isn&rsquo;t a feature. <span style="color:var(--red)">It&rsquo;s the foundation.</span></h2>
-      <div class="badges">
-        <span class="badgePill">SOC 2 Type II <strong>Attested</strong></span>
-        <span class="badgePill">ISO/IEC 27001 <strong>Certified</strong></span>
-        <span class="badgePill">HIPAA Security Rule <strong>Assessed</strong></span>
-      </div>
-      <p class="trustNote">OneSmarter&rsquo;s own operations are independently examined — SOC 2 Type II attestation, ISO/IEC 27001 certification, and a completed HIPAA Security Rule compliance assessment. The same discipline shows up in the work we do for practices. Details and definitions live in our <a href="https://onesmarter.com/trust-center">Trust Center</a>, and everything else about us is at <a href="https://onesmarter.com">onesmarter.com</a>.</p>
-      <div class="signature" aria-hidden="true">Is your practice AI ready?</div>
-
+  <footer class="wrap">
       <div class="trust">
         <strong>One Smarter, Inc.</strong> · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459<br>
         <a href="https://onesmarter.com">onesmarter.com</a> · <a href="mailto:care@onesmarter.com">care@onesmarter.com</a> · <a href="https://onesmarter.com/trust-center">Trust Center</a> · <a href="https://onesmarter.com/privacy">Privacy</a><br>
         <span class="pipes"><span>SOC 2 Type II Attested |</span> <span>ISO/IEC 27001 Certified |</span> <span>HIPAA Security Rule Compliance Assessment Completed</span></span><br>
         Consistent with federal website-accessibility standards (WCAG 2.1 AA, ADA / ACA Section 1557).
       </div>
+  </footer>
     </div>
   </section>
   <noscript><div class="wrap"><p>This page needs JavaScript for the conversation. Contact <a href="mailto:care@onesmarter.com">care@onesmarter.com</a>.</p></div></noscript>
@@ -459,6 +473,21 @@
       input.focus();
     }
   });
+
+
+  for (const btn of document.querySelectorAll("[data-ask]")) {
+    btn.addEventListener("click", () => {
+      input.value = btn.getAttribute("data-ask") || "";
+      document.getElementById("practice-agent").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      input.focus({ preventScroll: true });
+    });
+  }
+  for (const btn of document.querySelectorAll("[data-ask-focus]")) {
+    btn.addEventListener("click", () => {
+      document.getElementById("practice-agent").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      input.focus({ preventScroll: true });
+    });
+  }
 
   humanLink.addEventListener("click", () => track("human_handoff"));
   addMessage(openings[sourceTag] || openings.none, "assistant");
