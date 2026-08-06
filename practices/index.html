@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI tools built for how your practice actually runs — OneSmarter</title>
+<meta name="description" content="Meet OneSmarter's practice agent: get a free AI-visibility check of your practice website, or talk through billing, bookkeeping, staffing, and compliance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0B;
+  --red: #DC2626;
+  --text: #F4F4F5;
+  --text-dim: rgba(244, 244, 245, 0.62);
+  --panel: #141416;
+  --panel-2: #1D1D21;
+  --line: rgba(244,244,245,0.09);
+  --focus: #7DBAFF;
+  font-family: 'Archivo', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  background-image: radial-gradient(90rem 42rem at 80% -12%, rgba(220,38,38,0.08), transparent 60%);
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+.wrap { width: min(960px, 100%); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+
+/* ---- Header --------------------------------------------------------------- */
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 18px 0; }
+.wordmark { display: flex; align-items: center; gap: 6px; }
+.wordmark img { height: 34px; width: auto; display: block; }
+.wordmark .inc { font-size: 12px; font-weight: 600; color: var(--text-dim); align-self: flex-start; margin-top: 2px; }
+.human-link { font-size: 13px; color: var(--text-dim); margin-left: auto; text-align: right; }
+.human-link a { color: var(--text); }
+
+/* ---- Hero ------------------------------------------------------------------ */
+.hero { padding: clamp(18px, 4vw, 44px) 0 10px; }
+.kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.28em; color: var(--red); text-transform: uppercase; }
+h1 { margin: 12px 0 0; font-size: clamp(26px, 5.5vw, 44px); line-height: 1.12; font-weight: 700; max-width: 17em; }
+h1 .accent { color: var(--red); }
+.hero p { max-width: 44em; color: var(--text-dim); font-size: clamp(15px, 2vw, 17px); line-height: 1.6; margin: 14px 0 0; }
+.hero p strong { color: var(--text); }
+
+/* ---- Agent panel ----------------------------------------------------------- */
+.agent { margin: 26px 0 0; border: 1px solid var(--line); border-radius: 16px; background: rgba(20,20,22,0.6); overflow: hidden; }
+.agent__head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--text-dim); }
+.agent__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex: none; }
+.log { height: min(46vh, 420px); overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+.msg { max-width: 85%; padding: 11px 14px; border-radius: 14px; line-height: 1.5; font-size: 15px; }
+.msg--agent { background: var(--panel-2); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+.msg--user { background: var(--red); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.msg--agent strong { color: var(--text); }
+.typing { align-self: flex-start; color: var(--text-dim); font-size: 13px; padding: 2px 14px 8px; }
+.composer { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.composer input { flex: 1; font: inherit; font-size: 16px; background: var(--panel); color: var(--text); border: 1px solid rgba(244,244,245,0.16); border-radius: 12px; padding: 12px 14px; }
+.composer input::placeholder { color: rgba(244,244,245,0.45); }
+.composer button { font: inherit; font-weight: 600; font-size: 15px; background: var(--red); color: #fff; border: 0; border-radius: 12px; padding: 12px 18px; cursor: pointer; }
+.composer button:disabled { opacity: 0.5; cursor: default; }
+.agent__note { padding: 0 16px 12px; font-size: 11.5px; color: var(--text-dim); }
+
+/* ---- Sections shared ------------------------------------------------------- */
+section { padding: clamp(34px, 6vw, 60px) 0 0; }
+h2 { font-size: clamp(20px, 3.4vw, 28px); margin: 10px 0 0; line-height: 1.2; }
+h2 .accent { color: var(--red); }
+.sec-intro { color: var(--text-dim); max-width: 44em; line-height: 1.65; font-size: 15px; margin: 12px 0 0; }
+
+/* ---- Five areas grid ------------------------------------------------------- */
+.areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 20px; }
+.area { border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: rgba(20,20,22,0.5); }
+.area h3 { margin: 0; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.area h3::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+.area p { margin: 8px 0 0; color: var(--text-dim); font-size: 13.5px; line-height: 1.6; }
+
+/* ---- Scan strip ------------------------------------------------------------ */
+.scan { border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 14px; padding: 18px 20px; margin-top: 20px; background: rgba(20,20,22,0.5); }
+.scan h3 { margin: 0; font-size: 16px; }
+.scan p { color: var(--text-dim); font-size: 14px; line-height: 1.65; margin: 8px 0 0; max-width: 52em; }
+.scan a { color: var(--text); }
+
+/* ---- Trust ----------------------------------------------------------------- */
+.badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.badge { border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 12.5px; letter-spacing: 0.04em; background: rgba(20,20,22,0.5); white-space: nowrap; }
+.badge strong { color: var(--red); font-weight: 600; }
+.trust-note { color: var(--text-dim); font-size: 13px; line-height: 1.65; margin-top: 14px; max-width: 52em; }
+.trust-note a { color: var(--text); }
+
+/* ---- Signature line -------------------------------------------------------- */
+.signature { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--red); font-size: clamp(18px, 3vw, 24px); margin-top: clamp(34px, 6vw, 56px); display: flex; align-items: center; gap: 14px; }
+.signature::after { content: ''; height: 1px; flex: 1; background: linear-gradient(90deg, rgba(220,38,38,0.6), transparent); }
+
+/* ---- Footer ---------------------------------------------------------------- */
+footer { margin-top: 26px; border-top: 1px solid var(--line); padding: 22px 0 30px; font-size: 12.5px; line-height: 1.8; color: var(--text-dim); }
+footer a { color: var(--text); }
+.trustbar { font-size: 11px; letter-spacing: 0.08em; color: var(--text-dim); margin-top: 8px; }
+.trustbar__item { white-space: nowrap; }
+.trustbar__sep { color: var(--red); padding: 0 6px; }
+@media (max-width: 430px) { .trustbar { font-size: 9px; letter-spacing: 0.04em; } }
+.fineprint { font-size: 10.5px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="wordmark">
+      <img src="data:image/webp;base64,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" alt="One Smarter">
+      <span class="inc">Inc.</span>
+    </div>
+    <div class="human-link">Prefer a human? <a href="mailto:care@onesmarter.com">care@onesmarter.com</a></div>
+  </header>
+
+  <!-- ================================================== HERO + AGENT ==== -->
+  <!-- Headline reuses the approved card-back line — the physician holding
+       either card sees the same sentence they just read. -->
+  <div class="hero">
+    <div class="kicker">For healthcare providers</div>
+    <h1>AI tools built for how your practice <span class="accent">actually runs.</span></h1>
+    <p>You scanned the card — so meet the agent. Ask it anything about the business side of your practice, or let it run a <strong>free AI-visibility check</strong> of your website: can AI assistants actually find you when patients ask?</p>
+  </div>
+
+  <div class="agent" id="agent">
+    <div class="agent__head"><span class="agent__dot" aria-hidden="true"></span> OneSmarter practice agent — no signup, no forms</div>
+    <div class="log" id="log" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <form class="composer" id="composer">
+      <label for="input" style="position:absolute;left:-9999px">Your message</label>
+      <input id="input" name="message" autocomplete="off" placeholder="Type here — try your website address" required>
+      <button type="submit" id="send">Send</button>
+    </form>
+    <div class="agent__note">This is an AI agent. It's for practice operations — please don't include patient information.</div>
+  </div>
+
+  <!-- ================================================== THE FIVE AREAS ==== -->
+  <section aria-labelledby="areas-h">
+    <div class="kicker">The rest of it</div>
+    <h2 id="areas-h">The business side of your practice — <span class="accent">handled.</span></h2>
+    <p class="sec-intro">Five areas, one team. AI where it makes your practice faster, people where it matters.</p>
+    <!-- Copy discipline: descriptors below are the approved card wording.
+         Do not add services here without checking the site (spec §6). -->
+    <div class="areas">
+      <div class="area"><h3>Money</h3><p>Cash flow · billing · AP · accounting. Keep money moving predictably — the work you do turns into revenue, not resubmissions.</p></div>
+      <div class="area"><h3>Operations</h3><p>Scheduling · front desk · workflow. The office runs on time, and closes on time.</p></div>
+      <div class="area"><h3>People</h3><p>HR · hiring · credentialing. From job post to credentialed provider without the paperwork spiral.</p></div>
+      <div class="area"><h3>Trust</h3><p>HIPAA · SOC 2 · ISO/IEC 27001 readiness · security. Compliance handled like it's our license on the line.</p></div>
+      <div class="area"><h3>Growth</h3><p>Visibility · reputation · patient comms. Findable by patients — and by the AI tools they ask.</p></div>
+    </div>
+  </section>
+
+  <!-- ================================================== THE FREE SCAN ==== -->
+  <section aria-labelledby="scan-h">
+    <div class="kicker">Free — no strings</div>
+    <h2 id="scan-h">Where does your practice stand with AI search?</h2>
+    <div class="scan">
+      <h3>The AI-visibility check</h3>
+      <!-- TODO(copy): finalize once the scan option (spec §5) is decided.
+           Describe ONLY what the scan actually checks. -->
+      <p>Give the agent your website address and it checks how your practice looks to AI assistants: whether your site is machine-readable, whether AI crawlers can reach it, and whether the basics that make you findable — and accessible, with federal deadlines in 2026 — are in place. Results in the chat in about a minute, and we'll email you the written summary if you'd rather read it later. <a href="#agent">Start the check ↑</a></p>
+    </div>
+  </section>
+
+  <!-- ================================================== TRUST ==== -->
+  <section aria-labelledby="trust-h">
+    <div class="kicker">Why practices trust us</div>
+    <h2 id="trust-h">Compliance isn't a feature. <span class="accent">It's the foundation.</span></h2>
+    <!-- Verb discipline is load-bearing (spec §7.1). -->
+    <div class="badges">
+      <span class="badge">SOC 2 Type II <strong>Attested</strong></span>
+      <span class="badge">ISO/IEC 27001 <strong>Certified</strong></span>
+      <span class="badge">HIPAA Security Rule <strong>Assessed</strong></span>
+    </div>
+    <p class="trust-note">OneSmarter's own operations are independently examined — SOC 2 Type II attestation, ISO/IEC 27001 certification, and a completed HIPAA Security Rule compliance assessment. The same discipline shows up in the work we do for practices. Details, reports, and definitions live in our <a href="https://onesmarter.com/trust-center">Trust Center</a>.</p>
+  </section>
+
+  <div class="signature">Is your practice AI ready?</div>
+
+  <footer>
+    <div><strong>One Smarter, Inc.</strong> · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459</div>
+    <div><a href="mailto:care@onesmarter.com">care@onesmarter.com</a> · <a href="https://onesmarter.com">onesmarter.com</a> · <a href="https://onesmarter.com/trust-center">Trust Center</a> · <a href="https://onesmarter.com/privacy">Privacy</a></div>
+    <!-- IMMUTABLE. Wraps only at a pipe. Spec §7.1. -->
+    <div class="trustbar">
+      <span class="trustbar__item">SOC 2 Type II Attested <span class="trustbar__sep" aria-hidden="true">|</span></span>
+      <span class="trustbar__item">ISO/IEC 27001 Certified <span class="trustbar__sep" aria-hidden="true">|</span></span>
+      <span class="trustbar__item">HIPAA Security Rule Compliance Assessment Completed</span>
+    </div>
+    <div class="fineprint">Consistent with federal website-accessibility standards (WCAG 2.1 AA, ADA / ACA Section 1557). Consistent with the HIPAA Security Rule, SOC&nbsp;2, and ISO/IEC&nbsp;27001, with requirements tightening in 2026.</div>
+  </footer>
+
+</div>
+
+<script>
+/* ==========================================================================
+   Conversation controller — identical skeleton to draft v0.1.
+   MOCK brain: every "TODO(backend)" is an integration point. See spec.
+   ========================================================================== */
+(function () {
+  'use strict';
+  const sTag = new URLSearchParams(location.search).get('s') || 'none';
+
+  // TODO(backend): replace with real analytics provider (events: spec §8).
+  function track(event, props) { console.log('[analytics]', event, Object.assign({ s: sTag }, props || {})); }
+  track('page_view');
+
+  const log = document.getElementById('log');
+  const form = document.getElementById('composer');
+  const input = document.getElementById('input');
+  const send = document.getElementById('send');
+
+  function addMsg(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg msg--' + who;
+    div.innerHTML = text; // trusted literals only in this draft.
+    // TODO(backend): real model output must be rendered as TEXT (textContent)
+    // or sanitized — it is untrusted.
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+  let typingEl = null;
+  function showTyping() { typingEl = document.createElement('div'); typingEl.className='typing'; typingEl.textContent='Agent is typing…'; log.appendChild(typingEl); log.scrollTop = log.scrollHeight; }
+  function hideTyping() { if (typingEl) { typingEl.remove(); typingEl = null; } }
+  function agentSays(text, delayMs) {
+    return new Promise(function (resolve) {
+      showTyping();
+      setTimeout(function () { hideTyping(); addMsg(text, 'agent'); resolve(); }, delayMs == null ? 700 : delayMs);
+    });
+  }
+
+  /* Openings by source tag (spec §4.1) */
+  const OPENINGS = {
+    qr:  "You scanned the card — so you already know the question: when a patient asks AI to find a doctor, <strong>can it find you?</strong> I can check your practice website right now, free. What's the web address?",
+    qrb: "The card said we take care of <strong>the rest</strong> — the books, the billing, the back office. What's eating the most of your week right now? (I can also run the free AI-visibility check — just give me your website address.)",
+    none: "I'm OneSmarter's practice agent. I can check how visible your practice is to AI search — free — or talk through the business side: billing, bookkeeping, staffing, compliance. Where do you want to start?"
+  };
+  OPENINGS.qra = OPENINGS.qr;
+
+  /* State machine skeleton: opening -> awaiting_url -> scanning -> results
+     -> email_offer -> open.  TODO(backend): replace routeUserMessage() with
+     the model call; keep state names + track() calls. */
+  let state = 'opening';
+  let practiceUrl = null;
+  function looksLikeUrl(t) { return /\b[a-z0-9-]+\.(com|org|net|health|md|care|us|io)\b/i.test(t); }
+
+  async function routeUserMessage(text) {
+    // TODO(backend): PHI deflection is a hard rule in the real agent (§7.3).
+    if (state === 'awaiting_url' || looksLikeUrl(text)) {
+      if (looksLikeUrl(text)) {
+        practiceUrl = text.match(/\b[\w.-]+\.[a-z]{2,}\S*/i)[0];
+        track('url_provided');
+        state = 'scanning';
+        await agentSays("On it — checking <strong>" + practiceUrl + "</strong> for AI findability. Give me under a minute. (If you need to run, tell me an email and I'll send the results there.)");
+        // TODO(backend): real scan service here (spec §5). Sample findings
+        // below are ILLUSTRATIVE ONLY and must never ship.
+        await agentSays("Here's what I found (sample output for this draft):<br>· Your site loads over HTTPS — good.<br>· No structured data (schema.org) describing the practice — AI assistants have little to work with.<br>· No llms.txt — newer AI crawlers get no guidance.<br>· 14 images missing alt text — an accessibility signal, with 2026 deadlines approaching.", 1600);
+        track('scan_completed'); track('results_viewed');
+        state = 'email_offer';
+        await agentSays("Want this as a written summary with the fixes ranked? Tell me an email and I'll send it — or we can keep going right here.");
+        return;
+      }
+      await agentSays("Just the web address is all I need — something like <strong>yourpractice.com</strong>.");
+      return;
+    }
+    if (state === 'email_offer' && /\S+@\S+\.\S+/.test(text)) {
+      track('email_captured');
+      // TODO(backend): store lead + transactional email (spec §8).
+      await agentSays("Done — the summary is on its way. While you're here: anything else about the practice I can help with? Billing, staffing, the books?");
+      track('report_sent');
+      state = 'open';
+      return;
+    }
+    if (/book|billing|payroll|hr|hiring|staff|tax|account|cash ?flow|credential|schedul|front desk|compliance|hipaa|soc|iso/i.test(text)) {
+      // TODO(backend): services answers come from the generated knowledge
+      // base (llms-full.txt / ai-pages) — spec §6. Never hand-write claims.
+      await agentSays("That's exactly the kind of thing OneSmarter takes off your plate. In this draft I'm a mock — the production agent answers from the OneSmarter site's own service descriptions. Want a human to follow up? Email <strong>care@onesmarter.com</strong> and mention this chat.");
+      track('human_handoff');
+      state = 'open';
+      return;
+    }
+    if (/human|person|someone real|call/i.test(text)) {
+      await agentSays("Of course — reach the team at <strong>care@onesmarter.com</strong>. Paste this conversation into your note and they'll have the context.");
+      track('human_handoff');
+      return;
+    }
+    await agentSays("I can do two things well: check your website's AI visibility (just give me the address), or talk through the business side of the practice. Which sounds useful?");
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    addMsg(text.replace(/</g, '&lt;'), 'user');
+    input.value = '';
+    send.disabled = true;
+    try { await routeUserMessage(text); }
+    finally { send.disabled = false; input.focus(); }
+  });
+  form.addEventListener('submit', function once() { track('conversation_started'); }, { once: true });
+
+  // Agent speaks first, instantly — no model round-trip for the opener (§8).
+  addMsg(OPENINGS[sTag] || OPENINGS.none, 'agent');
+})();
+</script>
+</body>
+</html>
