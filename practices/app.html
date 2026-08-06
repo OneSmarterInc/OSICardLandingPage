@@ -19,6 +19,25 @@
     .composer{display:flex;gap:9px;padding:13px;border-top:1px solid var(--line)}.composer input{min-width:0;flex:1;border:1px solid #3f3f46;background:#111113;color:var(--text);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px}.composer button{border:0;border-radius:12px;background:var(--red);color:white;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}.composer button:disabled{opacity:.55;cursor:not-allowed}.note{padding:0 16px 13px;color:var(--muted);font-size:11.5px}
     .trust{margin-top:30px;border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:12px;line-height:1.8}.trust strong{color:var(--text)}.pipes{overflow-wrap:normal}.pipes span{white-space:nowrap}.error{color:var(--bad)}
     @media(max-width:560px){header{align-items:flex-start}.human{text-align:right}.log{min-height:430px}.msg{max-width:94%}.composer button{padding-inline:14px}}
+    
+    /* ==== Marketing sections added below the agent (v1.1) ==== */
+    .sect{padding:44px 0 0}.sect h2{margin:10px 0 0;font-size:clamp(21px,3.4vw,30px);line-height:1.15;letter-spacing:-.02em}.sect h2 .accent{font-weight:400}
+    .sectIntro{color:var(--muted);max-width:46em;line-height:1.65;font-size:15px;margin:12px 0 0}
+    .areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:20px}
+    .area{border:1px solid var(--line);border-radius:14px;padding:16px;background:rgba(21,21,23,.55)}
+    .area h3{margin:0;font-size:15px;display:flex;align-items:center;gap:8px}
+    .area h3::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--red);flex:none}
+    .area p{margin:8px 0 0;color:var(--muted);font-size:13.5px;line-height:1.6}
+    .area a{color:var(--text);font-size:12.5px}
+    .scanStrip{border:1px solid var(--line);border-left:3px solid var(--red);border-radius:14px;padding:18px 20px;margin-top:20px;background:rgba(21,21,23,.55)}
+    .scanStrip h3{margin:0;font-size:16px}.scanStrip p{color:var(--muted);font-size:14px;line-height:1.65;margin:8px 0 0;max-width:54em}.scanStrip a{color:var(--text)}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .badgePill{border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:12.5px;letter-spacing:.04em;background:rgba(21,21,23,.55);white-space:nowrap}
+    .badgePill strong{color:var(--red);font-weight:600}
+    .trustNote{color:var(--muted);font-size:13px;line-height:1.65;margin-top:14px;max-width:54em}.trustNote a{color:var(--text)}
+    .signature{font-family:"Instrument Serif",serif;font-style:italic;color:var(--red);font-size:clamp(18px,3vw,24px);margin-top:48px;display:flex;align-items:center;gap:14px}
+    .signature::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,rgba(220,38,38,.6),transparent)}
+
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
@@ -45,8 +64,48 @@
         <div id="agent-note" class="note">This is an AI agent for practice operations. Do not enter patient information. The visibility scan is not a medical, legal, tax, ranking, or WCAG audit.</div>
       </section>
 
+
+      <!-- ==== Story sections (v1.1): copy mirrors the approved postcard backs.
+           Service names below are the approved card wording — do not add
+           services without checking the site knowledge files (spec section 6). ==== -->
+      <section class="sect" aria-labelledby="areas-h">
+        <div class="kicker">The rest of it</div>
+        <h2 id="areas-h">The business side of your practice — <span class="accent" style="color:var(--red)">handled.</span></h2>
+        <p class="sectIntro">Five areas, one team. AI where it makes your practice faster, people where it matters. Ask the agent above about any of them.</p>
+        <div class="areas">
+          <div class="area"><h3>Money</h3><p>Cash flow · billing · AP · accounting. The work you do turns into revenue, not resubmissions.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
+          <div class="area"><h3>Operations</h3><p>Scheduling · front desk · workflow. The office runs on time, and closes on time.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
+          <div class="area"><h3>People</h3><p>HR · hiring · credentialing. From job post to credentialed provider without the paperwork spiral.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
+          <div class="area"><h3>Trust</h3><p>HIPAA · SOC 2 · ISO/IEC 27001 readiness · security. Compliance handled like it&rsquo;s our license on the line.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
+          <div class="area"><h3>Growth</h3><p>Visibility · reputation · patient comms. Findable by patients — and by the AI tools they ask.</p><p><a href="#practice-agent">Ask the agent ↑</a></p></div>
+        </div>
+      </section>
+
+      <section class="sect" aria-labelledby="scan-h">
+        <div class="kicker">Free — no strings</div>
+        <h2 id="scan-h">Where does your practice stand with AI search?</h2>
+        <div class="scanStrip">
+          <h3>The AI-visibility scan</h3>
+          <p>Give the agent your website address and it checks what an AI assistant can actually work with: HTTPS, structured data describing the practice, whether AI crawlers are allowed in, llms.txt, headings, image alt-text signals, and visible contact details. Every finding comes with its evidence — no sample results, no invented scores — and you can have the full written report emailed. <a href="#practice-agent">Start the scan ↑</a></p>
+        </div>
+      </section>
+
+      <section class="sect" aria-labelledby="trust-h">
+        <div class="kicker">Why practices trust us</div>
+        <h2 id="trust-h">Compliance isn&rsquo;t a feature. <span style="color:var(--red)">It&rsquo;s the foundation.</span></h2>
+        <div class="badges">
+          <span class="badgePill">SOC 2 Type II <strong>Attested</strong></span>
+          <span class="badgePill">ISO/IEC 27001 <strong>Certified</strong></span>
+          <span class="badgePill">HIPAA Security Rule <strong>Assessed</strong></span>
+        </div>
+        <p class="trustNote">OneSmarter&rsquo;s own operations are independently examined — SOC 2 Type II attestation, ISO/IEC 27001 certification, and a completed HIPAA Security Rule compliance assessment. The same discipline shows up in the work we do for practices. Details and definitions live in our <a href="https://onesmarter.com/trust-center">Trust Center</a>, and everything else about us is at <a href="https://onesmarter.com">onesmarter.com</a>.</p>
+      </section>
+
+      <div class="signature" aria-hidden="true">Is your practice AI ready?</div>
+
       <div class="trust">
-        <strong>One Smarter, Inc.</strong> · <a href="https://onesmarter.com/trust-center">Trust Center</a> · <a href="https://onesmarter.com/privacy">Privacy</a><br>
+        <strong>One Smarter, Inc.</strong> · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459<br>
+        <a href="https://onesmarter.com">onesmarter.com</a> · <a href="mailto:care@onesmarter.com">care@onesmarter.com</a> · <a href="https://onesmarter.com/trust-center">Trust Center</a> · <a href="https://onesmarter.com/privacy">Privacy</a><br>
         <span class="pipes"><span>SOC 2 Type II Attested |</span> <span>ISO/IEC 27001 Certified |</span> <span>HIPAA Security Rule Compliance Assessment Completed</span></span><br>
         Consistent with federal website-accessibility standards (WCAG 2.1 AA, ADA / ACA Section 1557).
       </div>
