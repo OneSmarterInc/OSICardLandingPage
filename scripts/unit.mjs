@@ -5,7 +5,7 @@ const practiceHandler = require("../api/practice-smtp.js");
 const analyticsHandler = require("../api/analytics.js");
 const reportStore = require("../api/report-store.js");
 
-process.env.OPENAI_API_KEY = "";
+process.env.ANTHROPIC_API_KEY = "";
 process.env.SMTP_USER = "";
 process.env.SMTP_PASSWORD = "";
 process.env.REPORT_COPY_TO = "";

@@ -502,7 +502,7 @@ async function handler(req, res) {
       ok: true,
       services: {
         scanner: true,
-        ai: Boolean(process.env.OPENAI_API_KEY),
+        ai: Boolean(process.env.ANTHROPIC_API_KEY),
         email: Boolean(process.env.SMTP_USER && process.env.SMTP_PASSWORD),
         analytics: true,
         leads: Boolean(process.env.SMTP_USER && process.env.SMTP_PASSWORD),
