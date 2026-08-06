@@ -6,8 +6,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "check": "node --check api/practice.js && node --check api/practice-smtp.js && node --check api/analytics.js && node --check scripts/validate.mjs && node --check scripts/smoke.mjs",
-    "test": "node scripts/validate.mjs",
+    "check": "node --check api/practice.js && node --check api/practice-smtp.js && node --check api/analytics.js && node --check scripts/validate.mjs && node --check scripts/unit.mjs && node --check scripts/smoke.mjs",
+    "test": "node scripts/validate.mjs && node scripts/unit.mjs",
     "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
