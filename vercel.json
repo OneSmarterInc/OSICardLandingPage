@@ -3,6 +3,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/practice",
+      "destination": "/api/practice-smtp"
+    },
+    {
       "source": "/practices",
       "destination": "/practices/app.html"
     },
