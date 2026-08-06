@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const originalPracticeHandler = require("./practice.js");
 
 const RATE_BUCKETS = new Map();
-const MAX_BODY_BYTES = 100000;
+const MAX_BODY_BYTES = 100_000;
 
 class AppError extends Error {
   constructor(message, status = 400, configurationRequired = false) {
@@ -40,10 +40,11 @@ function rateLimit(req, category, limit, windowMs) {
   const bucket = !existing || existing.resetAt <= now
     ? { count: 0, resetAt: now + windowMs }
     : existing;
+
   bucket.count += 1;
   RATE_BUCKETS.set(key, bucket);
 
-  if (RATE_BUCKETS.size > 5000) {
+  if (RATE_BUCKETS.size > 5_000) {
     for (const [entryKey, entry] of RATE_BUCKETS) {
       if (entry.resetAt <= now) RATE_BUCKETS.delete(entryKey);
     }
@@ -51,7 +52,7 @@ function rateLimit(req, category, limit, windowMs) {
 
   if (bucket.count > limit) {
     const error = new AppError("Too many requests. Please wait a few minutes and try again.", 429);
-    error.retryAfter = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+    error.retryAfter = Math.max(1, Math.ceil((bucket.resetAt - now) / 1_000));
     throw error;
   }
 }
@@ -65,7 +66,10 @@ function validContact(value) {
 }
 
 function cleanText(value, maxLength) {
-  return String(value || "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ").trim().slice(0, maxLength);
+  return String(value || "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+    .trim()
+    .slice(0, maxLength);
 }
 
 function escapeHtml(value = "") {
@@ -91,18 +95,24 @@ function possiblePhi(value) {
 }
 
 function promptInjectionAttempt(value) {
+  const text = String(value || "");
   return [
-    /ignore (?:all |any )?(?:previous|prior|system|developer) instructions/i.test(value),
-    /reveal|show|print|repeat|extract/i.test(value) && /system prompt|developer message|hidden instructions|api key|environment variable/i.test(value),
-    /act as (?:the )?(?:system|developer)/i.test(value),
-    /jailbreak|prompt injection/i.test(value)
+    /ignore (?:all |any )?(?:previous|prior|system|developer) instructions/i.test(text),
+    /reveal|show|print|repeat|extract/i.test(text) &&
+      /system prompt|developer message|hidden instructions|api key|environment variable/i.test(text),
+    /act as (?:the )?(?:system|developer)/i.test(text),
+    /jailbreak|prompt injection/i.test(text)
   ].some(Boolean);
 }
 
 function outOfScopeAdvice(value) {
   const text = String(value || "");
-  if (/\b(?:diagnose|diagnosis|treat|treatment|dosage|symptom|medicine|medication)\b/i.test(text)) return "medical";
-  if (/\b(?:legal advice|lawsuit|sue|contract interpretation|tax advice|tax return|deduction)\b/i.test(text)) return "legal or tax";
+  if (/\b(?:diagnose|diagnosis|treat|treatment|dosage|symptom|medicine|medication)\b/i.test(text)) {
+    return "medical";
+  }
+  if (/\b(?:legal advice|lawsuit|sue|contract interpretation|tax advice|tax return|deduction)\b/i.test(text)) {
+    return "legal or tax";
+  }
   return "";
 }
 
@@ -113,12 +123,14 @@ function safetyIntercept(message) {
       reply: "Please do not include patient-identifiable or medical information. This is not a HIPAA-covered clinical channel. I can help with practice operations or a public website scan without patient details."
     };
   }
+
   if (promptInjectionAttempt(message)) {
     return {
       blockedForInjection: true,
       reply: "I can’t provide hidden instructions, credentials, or internal configuration. I can help with OneSmarter services, practice operations, or a factual website scan."
     };
   }
+
   const scope = outOfScopeAdvice(message);
   if (scope) {
     return {
@@ -126,11 +138,12 @@ function safetyIntercept(message) {
       reply: `I can’t provide ${scope} advice. I can discuss non-clinical practice operations or connect you with care@onesmarter.com.`
     };
   }
+
   return null;
 }
 
 function sanitizeAgentReply(value, payload) {
-  let reply = cleanText(value, 8000);
+  let reply = cleanText(value, 8_000);
   if (!reply) return "";
 
   reply = reply
@@ -142,8 +155,10 @@ function sanitizeAgentReply(value, payload) {
     return "OneSmarter can support readiness work, but it does not issue ISO certificates or SOC reports. For a precise services discussion, contact care@onesmarter.com.";
   }
 
-  if (promptInjectionAttempt(payload.message || "") &&
-      /system prompt|developer message|hidden instructions|environment variable|api key/i.test(reply)) {
+  if (
+    promptInjectionAttempt(payload.message || "") &&
+    /system prompt|developer message|hidden instructions|environment variable|api key/i.test(reply)
+  ) {
     return "I can’t provide hidden instructions, credentials, or internal configuration.";
   }
 
@@ -162,7 +177,10 @@ function reportHtml(scan) {
         <strong>Next step:</strong> ${escapeHtml(finding.recommendation)}
       </td>
     </tr>`).join("");
-  const limits = (scan.limitations || []).map((limit) => `<li>${escapeHtml(limit)}</li>`).join("");
+
+  const limits = (scan.limitations || [])
+    .map((limit) => `<li>${escapeHtml(limit)}</li>`)
+    .join("");
 
   return `<!doctype html><html lang="en"><body style="margin:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#111827">
     <div style="max-width:720px;margin:auto;padding:28px 16px">
@@ -189,53 +207,90 @@ function reportText(scan) {
     `${finding.label} [${finding.status}]\n${finding.evidence}\nNext step: ${finding.recommendation}`
   ).join("\n\n");
   const limitations = (scan.limitations || []).map((item) => `- ${item}`).join("\n");
+
   return `OneSmarter AI-visibility scan summary\n\nWebsite: ${scan.finalUrl}\nScanned: ${scan.scannedAt}\n\n${findings}\n\nImportant limitations\n${limitations}\n\nQuestions? care@onesmarter.com\n\nOne Smarter, Inc. · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459\nYou requested this one-time report. No marketing subscription was created.`;
 }
 
 function smtpConfig() {
-  const user = cleanText(process.env.SMTP_USER, 254);
+  const user = cleanText(process.env.SMTP_USER, 254).toLowerCase();
   const password = String(process.env.SMTP_PASSWORD || "");
-  if (!user || !password) {
-    throw new AppError("Email delivery is not configured. Add SMTP_USER and SMTP_PASSWORD in Vercel.", 503, true);
+
+  if (!validEmail(user) || !password) {
+    throw new AppError(
+      "Email delivery is not configured. Add a valid SMTP_USER and SMTP_PASSWORD in Vercel.",
+      503,
+      true
+    );
   }
 
   const port = Number(process.env.SMTP_PORT || 465);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
     throw new AppError("SMTP_PORT is invalid.", 503, true);
   }
 
+  const host = cleanText(process.env.SMTP_HOST || "smtp.ionos.com", 255);
+  if (!host) throw new AppError("SMTP_HOST is invalid.", 503, true);
+
   const secure = String(process.env.SMTP_SECURE ?? (port === 465)).toLowerCase() === "true";
   return {
-    host: cleanText(process.env.SMTP_HOST || "smtp.ionos.com", 255),
+    host,
     port,
     secure,
     auth: { user, pass: password },
     requireTLS: !secure,
     tls: { minVersion: "TLSv1.2" },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 20000
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+    disableFileAccess: true,
+    disableUrlAccess: true
   };
+}
+
+function safeSmtpResponse(value) {
+  return String(value || "")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]")
+    .replace(/\s+/g, " ")
+    .slice(0, 300);
 }
 
 async function withTransport(callback) {
   const config = smtpConfig();
   const transporter = nodemailer.createTransport(config);
+
   try {
     return await callback(transporter, config);
   } catch (error) {
-    console.error("smtp_error", error?.code, error?.responseCode, error?.command);
+    console.error("smtp_error", {
+      code: error?.code || "unknown",
+      responseCode: error?.responseCode || null,
+      command: error?.command || null,
+      response: safeSmtpResponse(error?.response)
+    });
+
     if (error?.responseCode === 535 || error?.code === "EAUTH") {
       throw new AppError("SMTP authentication failed. Check SMTP_USER and SMTP_PASSWORD.", 502);
     }
     if (error?.responseCode === 550) {
-      throw new AppError("The SMTP sender was rejected. Ensure SMTP_FROM_EMAIL uses the same domain as SMTP_USER.", 502);
+      throw new AppError("The SMTP sender was rejected. Ensure SMTP_FROM_EMAIL uses the authenticated mailbox.", 502);
+    }
+    if (error?.responseCode === 554 || error?.code === "EMESSAGE") {
+      throw new AppError("The SMTP server rejected the message. Check the authenticated sender and IONOS mail policy.", 502);
     }
     if (error instanceof AppError) throw error;
     throw new AppError("The email could not be sent through the SMTP server.", 502);
   } finally {
     transporter.close();
   }
+}
+
+function senderAddress(config) {
+  return cleanText(process.env.SMTP_FROM_EMAIL || config.auth.user, 320);
+}
+
+function replyAddress(config) {
+  const value = cleanText(process.env.SMTP_REPLY_TO || config.auth.user, 254).toLowerCase();
+  return validEmail(value) ? value : config.auth.user;
 }
 
 async function sendReport(payload) {
@@ -246,16 +301,17 @@ async function sendReport(payload) {
   }
 
   return withTransport(async (transporter, config) => {
-    const from = process.env.SMTP_FROM_EMAIL || `OneSmarter <${config.auth.user}>`;
-    const replyTo = process.env.SMTP_REPLY_TO || config.auth.user;
     const info = await transporter.sendMail({
-      from,
+      from: senderAddress(config),
+      envelope: { from: config.auth.user, to: email },
       to: email,
-      replyTo,
+      replyTo: replyAddress(config),
       subject: `Your OneSmarter AI-visibility scan — ${new URL(payload.scan.finalUrl).hostname}`,
       text: reportText(payload.scan),
       html: reportHtml(payload.scan)
     });
+
+    console.log("report_email_sent", info.messageId || "accepted");
     return { emailId: info.messageId };
   });
 }
@@ -292,7 +348,7 @@ async function sendLead(payload) {
     name: cleanText(payload.name, 100),
     practice: cleanText(payload.practice, 160),
     contact: cleanText(payload.contact, 254),
-    need: cleanText(payload.need, 1000),
+    need: cleanText(payload.need, 1_000),
     sourceTag: cleanText(payload.sourceTag || "none", 20)
   };
 
@@ -307,17 +363,27 @@ async function sendLead(payload) {
   }
 
   return withTransport(async (transporter, config) => {
-    const from = process.env.SMTP_FROM_EMAIL || `OneSmarter <${config.auth.user}>`;
-    const replyTo = validEmail(lead.contact) ? lead.contact : (process.env.SMTP_REPLY_TO || config.auth.user);
-    const to = process.env.LEAD_TO_EMAIL || process.env.SMTP_REPLY_TO || "care@onesmarter.com";
+    const replyTo = validEmail(lead.contact) ? lead.contact : replyAddress(config);
+    const to = cleanText(
+      process.env.LEAD_TO_EMAIL || process.env.SMTP_REPLY_TO || "care@onesmarter.com",
+      254
+    ).toLowerCase();
+
+    if (!validEmail(to)) {
+      throw new AppError("LEAD_TO_EMAIL is not configured with a valid email address.", 503, true);
+    }
+
     const info = await transporter.sendMail({
-      from,
+      from: senderAddress(config),
+      envelope: { from: config.auth.user, to },
       to,
       replyTo,
       subject: `OneSmarter practice follow-up request (${lead.sourceTag})`,
       text: leadText(lead),
       html: leadHtml(lead)
     });
+
+    console.log("lead_email_sent", info.messageId || "accepted", lead.sourceTag);
     return { leadId: info.messageId };
   });
 }
@@ -326,11 +392,13 @@ function invokeOriginal(req, payload) {
   return new Promise((resolve, reject) => {
     let statusCode = 200;
     let settled = false;
+
     const finish = (body) => {
       if (settled) return;
       settled = true;
       resolve({ statusCode, body });
     };
+
     const mockRes = {
       setHeader() {},
       status(code) { statusCode = code; return this; },
@@ -378,7 +446,9 @@ module.exports = async function handler(req, res) {
         leads: Boolean(process.env.SMTP_USER && process.env.SMTP_PASSWORD)
       },
       emailProvider: "IONOS SMTP",
-      knowledgeConfigured: Boolean(process.env.ONESMARTER_KNOWLEDGE_URL || process.env.ONESMARTER_KNOWLEDGE_TEXT)
+      knowledgeConfigured: Boolean(
+        process.env.ONESMARTER_KNOWLEDGE_URL || process.env.ONESMARTER_KNOWLEDGE_TEXT
+      )
     });
   }
 
@@ -391,27 +461,29 @@ module.exports = async function handler(req, res) {
 
   try {
     enforceBodyLimit(req, payload);
-    rateLimit(req, "all", 90, 10 * 60 * 1000);
+    rateLimit(req, "all", 90, 10 * 60 * 1_000);
 
     if (payload.action === "report") {
-      rateLimit(req, "email", 6, 15 * 60 * 1000);
+      rateLimit(req, "email", 6, 15 * 60 * 1_000);
       return res.status(200).json({ ok: true, ...(await sendReport(payload)) });
     }
 
     if (payload.action === "lead") {
-      rateLimit(req, "lead", 5, 15 * 60 * 1000);
+      rateLimit(req, "lead", 5, 15 * 60 * 1_000);
       return res.status(200).json({ ok: true, ...(await sendLead(payload)) });
     }
 
     if (payload.action === "scan_report") {
-      rateLimit(req, "scan", 12, 10 * 60 * 1000);
-      rateLimit(req, "email", 6, 15 * 60 * 1000);
+      rateLimit(req, "scan", 12, 10 * 60 * 1_000);
+      rateLimit(req, "email", 6, 15 * 60 * 1_000);
       const email = cleanText(payload.email, 254).toLowerCase();
       if (!validEmail(email)) throw new AppError("Please provide a valid email address.");
+
       const scanResult = await invokeOriginal(req, { action: "scan", url: payload.url });
       if (scanResult.statusCode >= 400 || !scanResult.body?.ok || !scanResult.body?.scan) {
         return res.status(scanResult.statusCode).json(scanResult.body);
       }
+
       const reportResult = await sendReport({ email, scan: scanResult.body.scan });
       return res.status(200).json({
         ok: true,
@@ -422,8 +494,8 @@ module.exports = async function handler(req, res) {
     }
 
     if (payload.action === "chat") {
-      rateLimit(req, "chat", 40, 10 * 60 * 1000);
-      const message = cleanText(payload.message, 4000);
+      rateLimit(req, "chat", 40, 10 * 60 * 1_000);
+      const message = cleanText(payload.message, 4_000);
       const blocked = safetyIntercept(message);
       if (blocked) return res.status(200).json({ ok: true, ...blocked });
 
@@ -435,12 +507,12 @@ module.exports = async function handler(req, res) {
     }
 
     if (payload.action === "scan") {
-      rateLimit(req, "scan", 12, 10 * 60 * 1000);
+      rateLimit(req, "scan", 12, 10 * 60 * 1_000);
     }
 
     return originalPracticeHandler(req, res);
   } catch (error) {
-    console.error("practice_gateway_error", error?.message);
+    console.error("practice_gateway_error", error?.message || "unknown");
     return sendError(res, error);
   }
 };

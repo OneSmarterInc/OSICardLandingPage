@@ -7,17 +7,23 @@ const analyticsHandler = require("../api/analytics.js");
 process.env.OPENAI_API_KEY = "";
 process.env.SMTP_USER = "";
 process.env.SMTP_PASSWORD = "";
+process.env.SUPABASE_URL = "";
+process.env.SUPABASE_SECRET_KEY = "";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "";
+process.env.ANALYTICS_WEBHOOK_URL = "";
 
 function invoke(handler, request) {
   return new Promise((resolve, reject) => {
     let statusCode = 200;
     const headers = {};
     let settled = false;
+
     const finish = (body) => {
       if (settled) return;
       settled = true;
       resolve({ statusCode, headers, body });
     };
+
     const response = {
       setHeader(name, value) { headers[String(name).toLowerCase()] = value; },
       status(code) { statusCode = code; return this; },
@@ -28,12 +34,14 @@ function invoke(handler, request) {
         return this;
       }
     };
+
     const req = {
       method: request.method || "GET",
       body: request.body,
       headers: request.headers || {},
       socket: { remoteAddress: request.ip || "203.0.113.10" }
     };
+
     Promise.resolve(handler(req, response)).then(() => {
       if (!settled) finish({});
     }).catch(reject);
@@ -84,6 +92,7 @@ assert(oversized.statusCode === 413, "oversized API request is rejected");
 
 const analyticsHealth = await invoke(analyticsHandler, { method: "GET", ip: "203.0.113.20" });
 assert(analyticsHealth.statusCode === 200 && analyticsHealth.body?.events?.includes("page_view"), "analytics health exposes required events");
+assert(analyticsHealth.body?.destinations?.supabaseConfigured === false, "analytics health reports unconfigured Supabase safely");
 
 const analyticsEvent = await invoke(analyticsHandler, {
   method: "POST",
@@ -98,5 +107,44 @@ const invalidAnalytics = await invoke(analyticsHandler, {
   ip: "203.0.113.22"
 });
 assert(invalidAnalytics.statusCode === 400, "unapproved analytics event is rejected");
+
+const originalFetch = globalThis.fetch;
+const requests = [];
+globalThis.fetch = async (url, options = {}) => {
+  requests.push({ url: String(url), options });
+  return new Response(null, { status: 201 });
+};
+process.env.SUPABASE_URL = "https://project-ref.supabase.co";
+process.env.SUPABASE_SECRET_KEY = "test-server-secret";
+process.env.SUPABASE_ANALYTICS_TABLE = "practice_campaign_events";
+
+const supabaseHealth = await invoke(analyticsHandler, { method: "GET", ip: "203.0.113.23" });
+assert(supabaseHealth.body?.destinations?.supabaseConfigured === true, "analytics health detects Supabase configuration");
+
+const supabaseEvent = await invoke(analyticsHandler, {
+  method: "POST",
+  body: {
+    event: "conversation_depth",
+    source: "qrb",
+    sessionId: "supabase-test-session",
+    depth: 2,
+    message: "must not be stored",
+    email: "must-not-be-stored@example.com",
+    url: "https://must-not-be-stored.example"
+  },
+  ip: "203.0.113.24"
+});
+assert(supabaseEvent.statusCode === 202, "Supabase analytics write remains non-blocking");
+assert(requests.length === 1 && requests[0].url.endsWith("/rest/v1/practice_campaign_events"), "analytics writes to the configured Supabase table");
+
+const stored = JSON.parse(requests[0].options.body);
+assert(stored.event === "conversation_depth" && stored.source === "qrb" && stored.depth === 2, "Supabase row contains required funnel fields");
+assert(!("message" in stored) && !("email" in stored) && !("url" in stored) && !("ip" in stored), "Supabase row excludes sensitive visitor content");
+assert(requests[0].options.headers.authorization === "Bearer test-server-secret", "Supabase request uses the server-side secret");
+
+globalThis.fetch = originalFetch;
+delete process.env.SUPABASE_URL;
+delete process.env.SUPABASE_SECRET_KEY;
+delete process.env.SUPABASE_ANALYTICS_TABLE;
 
 console.log("Handler unit checks passed.");
