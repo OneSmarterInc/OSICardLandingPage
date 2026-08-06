@@ -1,18 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "trailingSlash": false,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/practice",
-      "destination": "/api/practice-smtp"
+      "src": "/api/practice",
+      "dest": "/api/practice-smtp.js"
     },
     {
-      "source": "/practices",
-      "destination": "/practices/app.html"
-    },
-    {
-      "source": "/practices/",
-      "destination": "/practices/app.html"
+      "src": "/practices/?",
+      "dest": "/practices/app.html"
     }
   ]
 }
