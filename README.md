@@ -6,7 +6,7 @@ This branch replaces the fake landing-page responses with a real Vercel implemen
 
 - `POST /api/practice` with `action: "scan"` — deterministic public website scan
 - `POST /api/practice` with `action: "chat"` — OpenAI-powered practice agent
-- `POST /api/practice` with `action: "report"` — sends the measured scan report through Resend
+- `POST /api/practice` with `action: "report"` — sends the measured scan report through IONOS SMTP
 - `GET /api/practice` — shows whether scanner, AI, and email integrations are configured
 - `/practices` — updated conversational landing page
 
@@ -33,30 +33,53 @@ Open **Vercel → Project → Settings → Environment Variables** and add:
 ```text
 OPENAI_API_KEY=your_openai_api_key
 OPENAI_MODEL=gpt-4.1-mini
-RESEND_API_KEY=your_resend_api_key
-REPORT_FROM_EMAIL=OneSmarter <care@onesmarter.com>
-REPORT_REPLY_TO=care@onesmarter.com
+
+SMTP_HOST=smtp.ionos.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=care@onesmarter.com
+SMTP_PASSWORD=your_ionos_mailbox_password
+SMTP_FROM_EMAIL=OneSmarter <care@onesmarter.com>
+SMTP_REPLY_TO=care@onesmarter.com
+
 ONESMARTER_KNOWLEDGE_URL=https://onesmarter.com/llms-full.txt
 ```
 
 Add them to Production and Preview, then redeploy.
 
-## Resend setup
+## IONOS SMTP setup
 
-Before `care@onesmarter.com` can be used as the sender:
+Use the credentials for the actual IONOS mailbox that will send the reports.
 
-1. Add `onesmarter.com` in the Resend Domains section.
-2. Add the DNS records shown by Resend to the domain DNS provider.
-3. Wait until the domain is marked verified.
-4. Add `RESEND_API_KEY` to Vercel and redeploy.
+Recommended settings:
 
-The UI does not display a fake success. If email is not configured or Resend rejects the request, it displays the actual failure.
+```text
+Host: smtp.ionos.com
+Port: 465
+Security: SSL/TLS
+Username: full IONOS email address
+Password: mailbox password
+```
+
+Alternative settings when port 465 is unavailable:
+
+```text
+SMTP_PORT=587
+SMTP_SECURE=false
+```
+
+Port 587 uses STARTTLS. The code requires TLS 1.2 or newer.
+
+The sender domain in `SMTP_FROM_EMAIL` should match the domain of `SMTP_USER`. For example, when authenticating as `care@onesmarter.com`, use a sender under `onesmarter.com`.
+
+The UI does not display a fake success. If SMTP is not configured, authentication fails, or IONOS rejects the sender, it displays a clear failure.
 
 ## Local checks
 
 ```bash
+npm install
 npm run check
-vercel dev
+npx vercel dev
 ```
 
 Then open:
@@ -69,6 +92,20 @@ http://localhost:3000/practices?s=qrb
 http://localhost:3000/api/practice
 ```
 
+A configured status response should include:
+
+```json
+{
+  "ok": true,
+  "services": {
+    "scanner": true,
+    "ai": true,
+    "email": true
+  },
+  "emailProvider": "IONOS SMTP"
+}
+```
+
 ## Security protections
 
 - local, private, metadata, and link-local scan targets are blocked
@@ -78,3 +115,4 @@ http://localhost:3000/api/practice
 - common patient-information patterns are deflected
 - OpenAI calls use `store: false`
 - model answers are instructed not to invent findings, numbers, credentials, or completed actions
+- SMTP credentials stay server-side in environment variables
