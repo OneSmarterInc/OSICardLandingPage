@@ -41,6 +41,10 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/practices/app.html"
+    },
+    {
       "src": "/api/practice",
       "dest": "/api/practice-smtp"
     },
