@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const originalPracticeHandler = require("./practice.js");
+const reportStore = require("./report-store.js");
 
 const RATE_BUCKETS = new Map();
 const MAX_BODY_BYTES = 100_000;
@@ -69,6 +70,12 @@ function cleanText(value, maxLength) {
   return String(value || "")
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
     .trim()
+    .slice(0, maxLength);
+}
+
+function cleanIdentifier(value, maxLength) {
+  return String(value || "")
+    .replace(/[^a-zA-Z0-9._:-]/g, "")
     .slice(0, maxLength);
 }
 
@@ -196,7 +203,7 @@ function reportHtml(scan) {
         <ul>${limits}</ul>
         <p>Questions? Reply or contact <a href="mailto:care@onesmarter.com">care@onesmarter.com</a>.</p>
         <p style="font-size:12px;color:#6b7280">One Smarter, Inc. · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459</p>
-        <p style="font-size:12px;color:#6b7280">You requested this one-time report. No marketing subscription was created.</p>
+        <p style="font-size:12px;color:#6b7280">You requested this one-time report. A limited delivery record is retained for operations; no marketing subscription was created.</p>
       </div>
     </div>
   </body></html>`;
@@ -208,7 +215,7 @@ function reportText(scan) {
   ).join("\n\n");
   const limitations = (scan.limitations || []).map((item) => `- ${item}`).join("\n");
 
-  return `OneSmarter AI-visibility scan summary\n\nWebsite: ${scan.finalUrl}\nScanned: ${scan.scannedAt}\n\n${findings}\n\nImportant limitations\n${limitations}\n\nQuestions? care@onesmarter.com\n\nOne Smarter, Inc. · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459\nYou requested this one-time report. No marketing subscription was created.`;
+  return `OneSmarter AI-visibility scan summary\n\nWebsite: ${scan.finalUrl}\nScanned: ${scan.scannedAt}\n\n${findings}\n\nImportant limitations\n${limitations}\n\nQuestions? care@onesmarter.com\n\nOne Smarter, Inc. · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459\nYou requested this one-time report. A limited delivery record is retained for operations; no marketing subscription was created.`;
 }
 
 function smtpConfig() {
@@ -293,27 +300,82 @@ function replyAddress(config) {
   return validEmail(value) ? value : config.auth.user;
 }
 
-async function sendReport(payload) {
+function reportCopyAddress(visitorEmail = "") {
+  const value = cleanText(process.env.REPORT_COPY_TO, 254).toLowerCase();
+  if (!validEmail(value) || value === visitorEmail) return "";
+  return value;
+}
+
+function reportRecipients(visitorEmail) {
+  const copyTo = reportCopyAddress(visitorEmail);
+  return {
+    copyTo,
+    envelopeTo: copyTo ? [visitorEmail, copyTo] : [visitorEmail]
+  };
+}
+
+function sourceTagFor(payload, req) {
+  const supplied = cleanIdentifier(payload.sourceTag, 20);
+  if (supplied) return supplied;
+
+  try {
+    const referer = req?.headers?.referer || req?.headers?.referrer;
+    const fromQuery = new URL(referer).searchParams.get("s");
+    return cleanIdentifier(fromQuery || "none", 20) || "none";
+  } catch {
+    return "none";
+  }
+}
+
+function sessionIdFor(payload) {
+  return cleanIdentifier(payload.sessionId, 80) || "";
+}
+
+async function sendReport(payload, req) {
   const email = cleanText(payload.email, 254).toLowerCase();
   if (!validEmail(email)) throw new AppError("Please provide a valid email address.");
   if (!payload.scan?.finalUrl || !Array.isArray(payload.scan.findings)) {
     throw new AppError("A completed scan is required.");
   }
 
-  return withTransport(async (transporter, config) => {
-    const info = await transporter.sendMail({
-      from: senderAddress(config),
-      envelope: { from: config.auth.user, to: email },
-      to: email,
-      replyTo: replyAddress(config),
-      subject: `Your OneSmarter AI-visibility scan — ${new URL(payload.scan.finalUrl).hostname}`,
-      text: reportText(payload.scan),
-      html: reportHtml(payload.scan)
+  const reportRequestPromise = reportStore.createReportRequest({
+    recipientEmail: email,
+    website: payload.scan.finalUrl,
+    sourceTag: sourceTagFor(payload, req),
+    sessionId: sessionIdFor(payload)
+  });
+
+  try {
+    const info = await withTransport(async (transporter, config) => {
+      const recipients = reportRecipients(email);
+      return transporter.sendMail({
+        from: senderAddress(config),
+        envelope: { from: config.auth.user, to: recipients.envelopeTo },
+        to: email,
+        bcc: recipients.copyTo || undefined,
+        replyTo: replyAddress(config),
+        subject: `Your OneSmarter AI-visibility scan — ${new URL(payload.scan.finalUrl).hostname}`,
+        text: reportText(payload.scan),
+        html: reportHtml(payload.scan)
+      });
+    });
+
+    const reportRequestId = await reportRequestPromise;
+    await reportStore.markReportRequest(reportRequestId, {
+      status: "sent",
+      smtpMessageId: info.messageId
     });
 
     console.log("report_email_sent", info.messageId || "accepted");
     return { emailId: info.messageId };
-  });
+  } catch (error) {
+    const reportRequestId = await reportRequestPromise;
+    await reportStore.markReportRequest(reportRequestId, {
+      status: "failed",
+      failureCode: "smtp_delivery_failed"
+    });
+    throw error;
+  }
 }
 
 function leadText(lead) {
@@ -431,7 +493,7 @@ function sendError(res, error) {
   });
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
 
@@ -443,7 +505,9 @@ module.exports = async function handler(req, res) {
         ai: Boolean(process.env.OPENAI_API_KEY),
         email: Boolean(process.env.SMTP_USER && process.env.SMTP_PASSWORD),
         analytics: true,
-        leads: Boolean(process.env.SMTP_USER && process.env.SMTP_PASSWORD)
+        leads: Boolean(process.env.SMTP_USER && process.env.SMTP_PASSWORD),
+        reportRecords: reportStore.configured(),
+        reportCopy: Boolean(reportCopyAddress())
       },
       emailProvider: "IONOS SMTP",
       knowledgeConfigured: Boolean(
@@ -465,7 +529,7 @@ module.exports = async function handler(req, res) {
 
     if (payload.action === "report") {
       rateLimit(req, "email", 6, 15 * 60 * 1_000);
-      return res.status(200).json({ ok: true, ...(await sendReport(payload)) });
+      return res.status(200).json({ ok: true, ...(await sendReport(payload, req)) });
     }
 
     if (payload.action === "lead") {
@@ -484,7 +548,7 @@ module.exports = async function handler(req, res) {
         return res.status(scanResult.statusCode).json(scanResult.body);
       }
 
-      const reportResult = await sendReport({ email, scan: scanResult.body.scan });
+      const reportResult = await sendReport({ ...payload, email, scan: scanResult.body.scan }, req);
       return res.status(200).json({
         ok: true,
         scan: scanResult.body.scan,
@@ -515,4 +579,11 @@ module.exports = async function handler(req, res) {
     console.error("practice_gateway_error", error?.message || "unknown");
     return sendError(res, error);
   }
+}
+
+module.exports = handler;
+module.exports._test = {
+  reportRecipients,
+  sourceTagFor,
+  sessionIdFor
 };
