@@ -9,11 +9,14 @@ This checklist covers the standalone `osi-card` application. Canonical `onesmart
 - [x] `qr`, `qra`, `qrb`, absent, and unknown-tag fallback logic present
 - [x] Conversation displays no more than five prioritized scan findings
 - [x] Required campaign analytics events present
-- [x] API key pattern and SMTP password checks
+- [x] Privacy-minimized Supabase analytics sink present
+- [x] API key, Supabase secret-key, and SMTP password pattern checks
 - [x] PHI and prompt-injection interception present
 - [x] OpenAI `store: false` present
 - [x] Structured human-follow-up action present
 - [x] Early email plus URL server flow present
+- [x] Unused Resend report transport removed
+- [x] SMTP envelope uses the authenticated mailbox
 - [x] Production dependency audit blocks high-severity findings
 
 ## Functional smoke test
@@ -42,13 +45,24 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 - [ ] Test no tag, `qr`, `qra`, `qrb`, and an unknown tag in a private browser window
 - [ ] Confirm only the opening message changes visibly
 - [ ] Scan each printed proof QR on iPhone and Android
-- [ ] Confirm the source tag appears in analytics logs or the configured webhook
+- [ ] Confirm the source tag appears in Supabase or the configured analytics destination
+
+### Analytics
+
+- [ ] Run `supabase/practice_campaign_events.sql` in the intended Supabase project
+- [ ] Add `SUPABASE_URL`, one server secret key, and `SUPABASE_ANALYTICS_TABLE` in Vercel Production
+- [ ] Confirm `GET /api/analytics` reports `supabaseConfigured: true`
+- [ ] Confirm all nine event types can be stored
+- [ ] Confirm stored rows do not contain messages, contact details, scanned URLs, IP addresses, or transcripts
+- [ ] Confirm analytics failure does not interrupt chat, scan, report, or lead submission
+- [ ] Confirm retention and authorized dashboard access with the campaign owner
 
 ### Scan matrix
 
 - [ ] Well-built medical-practice website
 - [ ] Poor or incomplete medical-practice website
 - [ ] Non-resolving hostname
+- [ ] Website address with trailing punctuation
 - [ ] Non-practice website
 - [ ] JavaScript-rendered website; verify the limitation is disclosed
 - [ ] Confirm only measured findings appear in the conversation and report
@@ -66,6 +80,7 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 ### Email and leads
 
 - [ ] Verify IONOS SMTP authentication in Production
+- [ ] Confirm the authenticated SMTP mailbox is also the envelope sender
 - [ ] Send a report to Gmail, Outlook, iCloud/Apple Mail, and Yahoo
 - [ ] Check mobile rendering, text-only fallback, reply behavior, and spam folders
 - [ ] Confirm SPF, DKIM, and DMARC alignment for the sender domain
@@ -87,7 +102,7 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 ### Performance and operations
 
 - [ ] Confirm first message appears without waiting for OpenAI
-- [ ] Test model-down and SMTP-down fallbacks
+- [ ] Test model-down, SMTP-down, and Supabase-down fallbacks
 - [ ] Run controlled burst testing in Preview before Production
 - [ ] Review OpenAI cost ceiling and rate limits
 - [ ] Add a shared rate-limit store if launch traffic warrants it
@@ -96,4 +111,4 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 
 ## Release rule
 
-Merging the feature branch means the code is ready for the normal deployment pipeline. It does not, by itself, approve postcard mailing. The unchecked manual items above remain the launch gate.
+Merging the cleanup means the code is ready for the normal deployment pipeline. It does not, by itself, approve postcard mailing. The unchecked manual items above remain the launch gate.
