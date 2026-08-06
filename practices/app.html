@@ -11,7 +11,8 @@
   <style>
     :root{--bg:#0A0A0B;--panel:#151517;--panel2:#1e1e22;--text:#f4f4f5;--muted:#a1a1aa;--line:#2d2d32;--red:#DC2626;--focus:#7DBAFF;--good:#86efac;--warn:#fde68a;--bad:#fca5a5}
     *{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(70rem 35rem at 80% -10%,rgba(220,38,38,.12),transparent 60%),var(--bg);color:var(--text);font-family:Archivo,system-ui,sans-serif}
-    a{color:inherit}:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.wrap{width:min(980px,100%);margin:auto;padding:0 clamp(16px,4vw,40px)}
+    a{color:inherit}.skip{position:absolute;left:12px;top:-80px;background:white;color:black;padding:10px 14px;border-radius:8px;z-index:20}.skip:focus{top:12px}
+    :focus-visible{outline:3px solid var(--focus);outline-offset:3px}.wrap{width:min(980px,100%);margin:auto;padding:0 clamp(16px,4vw,40px)}
     header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0}.brand{font-size:20px;font-weight:700;letter-spacing:-.03em}.brand span{color:var(--red)}.human{font-size:13px;color:var(--muted)}
     main{padding:24px 0 48px}.kicker{color:var(--red);font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase}h1{max-width:760px;margin:12px 0 10px;font-size:clamp(30px,6vw,56px);line-height:1.04;letter-spacing:-.04em}.accent{font-family:"Instrument Serif",serif;font-style:italic;color:var(--red);font-weight:400}.lead{max-width:720px;color:var(--muted);font-size:16px;line-height:1.65}
     .agent{margin-top:26px;border:1px solid var(--line);border-radius:18px;background:rgba(21,21,23,.92);overflow:hidden;box-shadow:0 22px 70px rgba(0,0,0,.28)}.agentHead{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:var(--red)}.log{height:min(56vh,520px);min-height:360px;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}.msg{max-width:88%;padding:12px 14px;border-radius:15px;line-height:1.55;font-size:15px;white-space:pre-wrap}.assistant{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}.user{align-self:flex-end;background:var(--red);border-bottom-right-radius:4px}.system{align-self:center;color:var(--muted);font-size:13px;padding:4px}.findings{width:min(100%,760px);align-self:flex-start;display:grid;gap:9px}.finding{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}.findingTop{display:flex;justify-content:space-between;gap:14px;font-weight:600}.badge{font-size:11px;text-transform:uppercase;letter-spacing:.08em}.badge.good{color:var(--good)}.badge.review,.badge.missing{color:var(--warn)}.badge.issue{color:var(--bad)}.evidence,.recommendation{margin-top:7px;color:var(--muted);font-size:13px;line-height:1.5}.recommendation strong{color:var(--text)}
@@ -22,25 +23,26 @@
   </style>
 </head>
 <body>
+  <a class="skip" href="#practice-agent">Skip to practice agent</a>
   <div class="wrap">
     <header>
-      <div class="brand">One<span>Smarter</span></div>
-      <div class="human">Prefer a human? <a href="mailto:care@onesmarter.com">care@onesmarter.com</a></div>
+      <div class="brand" aria-label="OneSmarter">One<span>Smarter</span></div>
+      <div class="human">Prefer a human? <a id="human-link" href="mailto:care@onesmarter.com">care@onesmarter.com</a></div>
     </header>
-    <main>
+    <main id="main-content">
       <div class="kicker">For healthcare providers</div>
       <h1>Meet the agent. Get a <span class="accent">real website scan.</span></h1>
       <p class="lead">Ask about the business side of your practice, or enter your practice website. Findings are generated from what the scanner actually retrieves—no sample results and no invented scores.</p>
 
-      <section class="agent" aria-label="OneSmarter practice agent">
+      <section id="practice-agent" class="agent" aria-label="OneSmarter practice agent" aria-describedby="agent-note">
         <div class="agentHead"><span class="dot" aria-hidden="true"></span>OneSmarter practice agent</div>
-        <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <div id="log" class="log" role="log" aria-live="polite" aria-relevant="additions text"></div>
         <form id="composer" class="composer">
-          <label for="message" style="position:absolute;left:-9999px">Your message or website address</label>
-          <input id="message" autocomplete="off" placeholder="Type a message or practice website" required>
+          <label for="message" style="position:absolute;left:-9999px">Your message, website address, or requested contact details</label>
+          <input id="message" autocomplete="off" enterkeyhint="send" placeholder="Type a message or practice website" required aria-describedby="agent-note">
           <button id="send" type="submit">Send</button>
         </form>
-        <div class="note">This is an AI agent for practice operations. Do not enter patient information. The visibility scan is not a medical, legal, tax, ranking, or WCAG audit.</div>
+        <div id="agent-note" class="note">This is an AI agent for practice operations. Do not enter patient information. The visibility scan is not a medical, legal, tax, ranking, or WCAG audit.</div>
       </section>
 
       <div class="trust">
@@ -50,30 +52,67 @@
       </div>
     </main>
   </div>
+  <noscript><div class="wrap"><p>This page needs JavaScript for the conversation. Contact <a href="mailto:care@onesmarter.com">care@onesmarter.com</a>.</p></div></noscript>
 
 <script>
 (() => {
   "use strict";
-  const sourceTag = new URLSearchParams(location.search).get("s") || "none";
+
+  const rawSource = new URLSearchParams(location.search).get("s");
+  const sourceTag = (rawSource || "none").slice(0, 20);
+  const sessionId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const log = document.getElementById("log");
   const form = document.getElementById("composer");
   const input = document.getElementById("message");
   const send = document.getElementById("send");
+  const agent = document.getElementById("practice-agent");
+  const humanLink = document.getElementById("human-link");
+
   let history = [];
   let latestScan = null;
   let awaitingEmail = false;
+  let capturedEmail = "";
+  let reportSent = false;
+  let conversationStarted = false;
+  let conversationDepth = 0;
+  let serviceBridgeOffered = false;
+  let qrbHumanOfferShown = false;
+  let leadFlow = null;
 
   const openings = {
-    qr: "You scanned the card—so here’s the question: when a patient asks AI to find a doctor, can it understand your practice website? Send me the website address and I’ll run a factual check now.",
-    qra: "You scanned the card—so here’s the question: when a patient asks AI to find a doctor, can it understand your practice website? Send me the website address and I’ll run a factual check now.",
+    qr: "You scanned the card—so you already know the question: when a patient asks AI to find a doctor, can it understand your practice website? Send me the web address and I’ll run a factual check now. You may include an email in the same message in case you need to leave; it is optional.",
+    qra: "You scanned the card—so you already know the question: when a patient asks AI to find a doctor, can it understand your practice website? Send me the web address and I’ll run a factual check now. You may include an email in the same message in case you need to leave; it is optional.",
     qrb: "The card said we take care of the rest—the books, billing, back office, people, trust, and growth. What is taking too much of your week right now?",
     none: "I’m OneSmarter’s practice agent. I can discuss the business side of your practice or run a factual visibility scan of your public website. Where should we start?"
   };
+
+  function track(event, extra = {}) {
+    const payload = {
+      event,
+      source: sourceTag,
+      sessionId,
+      depth: Number.isInteger(extra.depth) ? extra.depth : undefined
+    };
+    const body = JSON.stringify(payload);
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("/api/analytics", new Blob([body], { type: "application/json" }));
+      } else {
+        fetch("/api/analytics", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body,
+          keepalive: true
+        }).catch(() => {});
+      }
+    } catch { /* analytics must never block the conversation */ }
+  }
 
   function addMessage(text, role, remember = true) {
     const div = document.createElement("div");
     div.className = `msg ${role}`;
     div.textContent = text;
+    div.tabIndex = -1;
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
     if (remember && (role === "user" || role === "assistant")) {
@@ -87,34 +126,65 @@
     const div = document.createElement("div");
     div.className = `system${isError ? " error" : ""}`;
     div.textContent = text;
+    if (isError) div.setAttribute("role", "alert");
+    else div.setAttribute("role", "status");
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
     return div;
   }
 
+  function setBusy(value) {
+    send.disabled = value;
+    input.disabled = value;
+    agent.setAttribute("aria-busy", String(value));
+  }
+
   function looksLikeWebsite(text) {
     return /(?:https?:\/\/)?(?:www\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z]{2,})(?:[^\s]*)?/i.test(text);
   }
-  function extractWebsite(text) {
-    return text.match(/(?:https?:\/\/)?(?:www\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z]{2,})(?:[^\s]*)?/i)?.[0] || text;
-  }
-  function extractEmail(text) { return text.match(/[^\s@]+@[^\s@]+\.[^\s@]+/)?.[0] || ""; }
 
-  async function post(payload) {
+  function extractWebsite(text) {
+    return text.match(/(?:https?:\/\/)?(?:www\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z]{2,})(?:[^\s]*)?/i)?.[0] || "";
+  }
+
+  function extractEmail(text) {
+    return text.match(/[^\s@]+@[^\s@]+\.[^\s@]+/)?.[0]?.replace(/[),.;]+$/, "") || "";
+  }
+
+  function validContact(text) {
+    return Boolean(extractEmail(text) || text.match(/^[+()0-9.\s-]{7,30}$/));
+  }
+
+  function humanIntent(text) {
+    return /\b(?:human|person|someone|call me|callback|contact me|talk to|speak to|representative|not helping|frustrated)\b/i.test(text);
+  }
+
+  async function post(payload, keepalive = false) {
     const response = await fetch("/api/practice", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      keepalive
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.error || "The request failed.");
     return data;
   }
 
+  function prioritizedFindings(scan) {
+    const rank = { issue: 0, missing: 1, review: 2, good: 3 };
+    return [...(scan.findings || [])]
+      .sort((a, b) => (rank[a.status] ?? 9) - (rank[b.status] ?? 9))
+      .slice(0, 5);
+  }
+
   function renderFindings(scan) {
     const wrapper = document.createElement("div");
     wrapper.className = "findings";
-    for (const finding of scan.findings || []) {
+    wrapper.tabIndex = -1;
+    wrapper.setAttribute("aria-label", "Top website scan findings");
+
+    for (const finding of prioritizedFindings(scan)) {
       const card = document.createElement("div");
       card.className = "finding";
       const top = document.createElement("div");
@@ -136,21 +206,45 @@
       card.append(top, evidence, recommendation);
       wrapper.appendChild(card);
     }
+
     log.appendChild(wrapper);
     log.scrollTop = log.scrollHeight;
+    wrapper.focus({ preventScroll: true });
   }
 
-  async function runScan(url) {
-    addMessage(`Scan ${url}`, "user");
+  function offerServiceBridge() {
+    if (serviceBridgeOffered) return;
+    serviceBridgeOffered = true;
+    addMessage("The scan work is complete. OneSmarter can also discuss billing, operations, people, trust, or growth. Tell me which area matters, or say “human” for a follow-up.", "assistant");
+  }
+
+  async function runScan(url, email = "") {
+    track("url_provided");
     const progress = addSystem("Fetching the public website and checking measured signals…");
     try {
-      const data = await post({ action: "scan", url });
+      const data = email
+        ? await post({ action: "scan_report", url, email }, true)
+        : await post({ action: "scan", url });
+
       latestScan = data.scan;
       progress.remove();
-      addMessage(`The scan completed for ${latestScan.finalUrl}. I checked the fetched HTML, HTTPS response, metadata, structured data, robots.txt, llms.txt, headings, image-alt signals, and visible contact signals.`, "assistant");
+      track("scan_completed");
+      addMessage(`The scan completed for ${latestScan.finalUrl}. I checked the fetched HTML, HTTPS response, metadata, structured data, robots.txt, llms.txt, headings, image-alt signals, visible contact signals, and page language.`, "assistant");
       renderFindings(latestScan);
-      addMessage("These findings describe only what was detected in this fetch. Want the written report? Enter the email address where I should send it.", "assistant");
-      awaitingEmail = true;
+      track("results_viewed");
+
+      const shown = prioritizedFindings(latestScan).length;
+      const total = latestScan.findings?.length || shown;
+      if (email && data.reportSent) {
+        reportSent = true;
+        awaitingEmail = false;
+        track("report_sent");
+        addMessage(`I showed the ${shown} highest-priority findings here and sent the complete ${total}-check report to ${email}.`, "assistant");
+        offerServiceBridge();
+      } else {
+        addMessage(`I showed the ${shown} highest-priority findings here. The complete report contains all ${total} checks. Want the written summary? Enter the email address where I should send it.`, "assistant");
+        awaitingEmail = true;
+      }
     } catch (error) {
       progress.remove();
       addMessage(`I could not complete that scan: ${error.message}`, "assistant");
@@ -160,13 +254,65 @@
   async function sendReport(email) {
     const progress = addSystem(`Sending the measured scan report to ${email}…`);
     try {
-      await post({ action: "report", email, scan: latestScan });
+      await post({ action: "report", email, scan: latestScan }, true);
       progress.remove();
-      addMessage(`Sent. The report is on its way to ${email}.`, "assistant");
+      reportSent = true;
       awaitingEmail = false;
+      track("report_sent");
+      addMessage(`Sent. The complete report is on its way to ${email}.`, "assistant");
+      offerServiceBridge();
     } catch (error) {
       progress.remove();
       addMessage(`The report was not sent: ${error.message}`, "assistant");
+    }
+  }
+
+  function startLeadFlow() {
+    if (leadFlow) return;
+    leadFlow = { stage: "name", data: {} };
+    track("human_handoff");
+    addMessage("I can send a structured follow-up request to the OneSmarter team without including the full chat transcript. What is your name?", "assistant");
+  }
+
+  async function continueLeadFlow(text) {
+    if (leadFlow.stage === "name") {
+      leadFlow.data.name = text.slice(0, 100);
+      leadFlow.stage = "practice";
+      addMessage("What is the name of your practice or organization?", "assistant");
+      return;
+    }
+    if (leadFlow.stage === "practice") {
+      leadFlow.data.practice = text.slice(0, 160);
+      leadFlow.stage = "contact";
+      addMessage("What email address or phone number should the team use?", "assistant");
+      return;
+    }
+    if (leadFlow.stage === "contact") {
+      if (!validContact(text)) {
+        addMessage("Please enter a valid email address or phone number.", "assistant");
+        return;
+      }
+      leadFlow.data.contact = text.slice(0, 254);
+      leadFlow.stage = "need";
+      addMessage("Briefly, what would you like help with? Do not include patient information.", "assistant");
+      return;
+    }
+
+    leadFlow.data.need = text.slice(0, 1000);
+    const progress = addSystem("Sending the follow-up request…");
+    try {
+      await post({
+        action: "lead",
+        ...leadFlow.data,
+        sourceTag
+      }, true);
+      progress.remove();
+      const summary = `Name: ${leadFlow.data.name}\nPractice: ${leadFlow.data.practice}\nContact: ${leadFlow.data.contact}\nRequest: ${leadFlow.data.need}`;
+      addMessage(`Your follow-up request was sent. Here is the summary for your records:\n\n${summary}\n\nYou can also email care@onesmarter.com.`, "assistant");
+      leadFlow = null;
+    } catch (error) {
+      progress.remove();
+      addMessage(`The follow-up request was not sent: ${error.message} You can email care@onesmarter.com directly.`, "assistant");
     }
   }
 
@@ -176,6 +322,11 @@
       const data = await post({ action: "chat", message, history, sourceTag, scan: latestScan });
       progress.remove();
       addMessage(data.reply, "assistant");
+
+      if (sourceTag === "qrb" && conversationDepth >= 2 && !qrbHumanOfferShown) {
+        qrbHumanOfferShown = true;
+        addMessage("A OneSmarter team member can follow up about what you described. Say “human” and I’ll collect only the contact details needed for that request.", "assistant");
+      }
     } catch (error) {
       progress.remove();
       addMessage(`The agent is temporarily unavailable: ${error.message} You can still run a website scan or email care@onesmarter.com.`, "assistant");
@@ -186,26 +337,54 @@
     event.preventDefault();
     const text = input.value.trim();
     if (!text) return;
+
     input.value = "";
-    send.disabled = true;
+    if (!conversationStarted) {
+      conversationStarted = true;
+      track("conversation_started");
+    }
+    conversationDepth += 1;
+    track("conversation_depth", { depth: conversationDepth });
+    addMessage(text, "user");
+
+    setBusy(true);
     try {
+      if (leadFlow) {
+        await continueLeadFlow(text);
+        return;
+      }
+
+      if (humanIntent(text)) {
+        startLeadFlow();
+        return;
+      }
+
       const email = extractEmail(text);
+      const website = extractWebsite(email ? text.replace(email, " ") : text);
+
+      if (email && email !== capturedEmail) {
+        capturedEmail = email;
+        track("email_captured");
+      }
+
       if (awaitingEmail && latestScan && email) {
-        addMessage(email, "user");
         await sendReport(email);
-      } else if (looksLikeWebsite(text)) {
-        await runScan(extractWebsite(text));
+      } else if (website) {
+        await runScan(website, capturedEmail);
+      } else if (email && !latestScan) {
+        addMessage("Got it. Share the public practice website when you’re ready. The email is optional and will only be used for the requested scan report.", "assistant");
       } else {
-        addMessage(text, "user");
         await askAgent(text);
       }
     } finally {
-      send.disabled = false;
+      setBusy(false);
       input.focus();
     }
   });
 
+  humanLink.addEventListener("click", () => track("human_handoff"));
   addMessage(openings[sourceTag] || openings.none, "assistant");
+  track("page_view");
 })();
 </script>
 </body>
