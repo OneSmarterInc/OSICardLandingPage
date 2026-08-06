@@ -6,6 +6,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "check": "node --check api/practice.js"
+    "check": "node --check api/practice.js && node --check api/practice-smtp.js"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.5"
   }
 }
