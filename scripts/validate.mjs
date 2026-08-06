@@ -57,8 +57,9 @@ assert(envExample.includes("ANALYTICS_WEBHOOK_URL="), "analytics webhook environ
 assert(packageJson.dependencies?.nodemailer, "Nodemailer dependency is declared");
 
 const combined = [app, practice, gateway, analytics, envExample].join("\n");
+const smtpPasswordLine = envExample.split(/\r?\n/).find((line) => line.startsWith("SMTP_PASSWORD="));
 assert(!/sk-(?:proj|ant)-[A-Za-z0-9_-]{20,}/.test(combined), "no API key is committed");
-assert(!/SMTP_PASSWORD\s*=\s*["']?[^"'\s#][^\r\n]{7,}/.test(envExample), "example file contains no SMTP password");
+assert(smtpPasswordLine === "SMTP_PASSWORD=", "example file contains no SMTP password");
 
 if (process.exitCode) process.exit(process.exitCode);
 console.log("All static launch checks passed.");
