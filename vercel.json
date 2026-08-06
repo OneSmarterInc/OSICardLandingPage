@@ -4,7 +4,11 @@
   "rewrites": [
     {
       "source": "/practices",
-      "destination": "/practices/index.html"
+      "destination": "/practices/app.html"
+    },
+    {
+      "source": "/practices/",
+      "destination": "/practices/app.html"
     }
   ]
 }
