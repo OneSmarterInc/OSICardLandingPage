@@ -53,6 +53,14 @@ Every event remains visible in Vercel function logs. Configure Supabase for dura
 
 Analytics delivery is best-effort. A Supabase or webhook outage is logged but never blocks chat, scanning, email reports, or human follow-up.
 
+## Report-delivery records
+
+Requested reports are tracked in a separate private Supabase table created by `supabase/practice_report_requests.sql`. It records the recipient email, public website origin, source tag, optional anonymous session ID, delivery status, SMTP message ID, and timestamps.
+
+It does not store the transcript, patient information, IP address, scan findings, or SMTP credentials. Storage failures are best-effort and never prevent the visitor report from being sent.
+
+When `REPORT_COPY_TO` is configured, the same requested report is sent as a private BCC. The visitor cannot see the internal copy address.
+
 ## Human follow-up
 
 A visitor can type “human,” “call me,” or similar language. The page then collects:
@@ -79,6 +87,7 @@ SMTP_USER=akshay.kumar@onesmarter.com
 SMTP_PASSWORD=your_ionos_mailbox_password
 SMTP_FROM_EMAIL=akshay.kumar@onesmarter.com
 SMTP_REPLY_TO=care@onesmarter.com
+REPORT_COPY_TO=care@onesmarter.com
 LEAD_TO_EMAIL=care@onesmarter.com
 
 ONESMARTER_KNOWLEDGE_URL=https://onesmarter.com/llms-full.txt
@@ -86,6 +95,7 @@ ONESMARTER_KNOWLEDGE_URL=https://onesmarter.com/llms-full.txt
 SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 SUPABASE_SECRET_KEY=your_server_secret_key
 SUPABASE_ANALYTICS_TABLE=practice_campaign_events
+SUPABASE_REPORT_REQUESTS_TABLE=practice_report_requests
 
 # Optional additional durable analytics receiver:
 ANALYTICS_WEBHOOK_URL=
@@ -110,6 +120,8 @@ At launch the agent reads the configured generated OneSmarter AI file. `llms-ful
 
 Report and lead emails use IONOS SMTP only. The old unused Resend path has been removed from `api/practice.js`. The SMTP envelope sender is forced to the authenticated mailbox while `SMTP_REPLY_TO` remains reply-able. Safe SMTP diagnostics redact email addresses before writing errors to Vercel logs.
 
+Requested reports use `REPORT_COPY_TO` as BCC and write a limited operational delivery record to `practice_report_requests`. The email footer tells the visitor that a limited delivery record is retained and that no marketing subscription was created.
+
 ## Safety and abuse controls
 
 - private, local, metadata, and link-local scan targets are blocked
@@ -125,7 +137,8 @@ Report and lead emails use IONOS SMTP only. The old unused Resend path has been 
 - trust-language output is deterministically corrected
 - OpenAI calls use `store: false`
 - SMTP, OpenAI, and Supabase credentials remain server-side
-- email and analytics payloads exclude the full chat transcript
+- analytics excludes contact details and transcripts
+- report records exclude transcripts, patient information, IP addresses, and scan findings
 
 The rate limits are best-effort because Vercel functions may run on multiple instances. Add a shared rate-limit store before materially increasing traffic or risk.
 
@@ -169,4 +182,4 @@ http://localhost:3000/practices?s=unknown-test
 
 ## Release gates
 
-Automated checks are enforced in GitHub Actions. Manual accessibility, mobile email-client, printed-QR, deliverability, Supabase-row verification, and production-load reviews remain release gates and are tracked in `docs/LAUNCH-CHECKLIST.md`.
+Automated checks are enforced in GitHub Actions. Manual accessibility, mobile email-client, printed-QR, deliverability, Supabase-row verification, BCC verification, retention review, and production-load reviews remain release gates and are tracked in `docs/LAUNCH-CHECKLIST.md`.

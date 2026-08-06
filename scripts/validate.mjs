@@ -16,8 +16,10 @@ const app = read("practices/app.html");
 const practice = read("api/practice.js");
 const gateway = read("api/practice-smtp.js");
 const analytics = read("api/analytics.js");
+const reportStore = read("api/report-store.js");
 const envExample = read(".env.example");
-const supabaseSql = read("supabase/practice_campaign_events.sql");
+const analyticsSql = read("supabase/practice_campaign_events.sql");
+const reportSql = read("supabase/practice_report_requests.sql");
 const packageJson = JSON.parse(read("package.json"));
 
 assert(app.includes("SOC 2 Type II Attested |"), "immutable SOC 2 trust wording is present");
@@ -58,6 +60,10 @@ assert(gateway.includes("SOC 2 Type II Attested"), "trust-language output correc
 assert(gateway.includes("rateLimit(req"), "best-effort abuse throttling exists");
 assert(gateway.includes("No marketing subscription was created"), "one-time report email disclosure exists");
 assert(gateway.includes("envelope: { from: config.auth.user"), "SMTP envelope uses the authenticated mailbox");
+assert(gateway.includes("bcc: recipients.copyTo"), "requested reports use a private BCC copy recipient");
+assert(gateway.includes("REPORT_COPY_TO"), "report-copy environment variable is used");
+assert(gateway.includes("reportStore.createReportRequest"), "report requests are recorded before SMTP delivery");
+assert(gateway.includes("reportStore.markReportRequest"), "report delivery status is updated after SMTP delivery");
 assert(gateway.includes("safeSmtpResponse"), "SMTP diagnostics redact addresses before logging");
 
 assert(analytics.includes("SUPABASE_SECRET_KEY"), "Supabase secret-key integration exists");
@@ -66,16 +72,30 @@ assert(analytics.includes("Promise.allSettled"), "analytics destinations cannot 
 assert(analytics.includes("Intentionally excludes message text"), "analytics excludes sensitive conversation content");
 assert(analytics.includes("IP addresses"), "analytics explicitly excludes IP addresses from storage");
 
+assert(reportStore.includes("SUPABASE_REPORT_REQUESTS_TABLE"), "separate Supabase report-request table is configurable");
+assert(reportStore.includes("recipient_email"), "report storage records the report recipient");
+assert(reportStore.includes("website_origin"), "report storage minimizes website data to its public origin");
+assert(reportStore.includes("report_store_insert_error"), "report storage failures are logged without breaking email delivery");
+assert(!reportStore.includes("transcript"), "report storage does not accept chat transcripts");
+assert(!reportStore.includes("patientInformation"), "report storage does not accept patient information");
+
 assert(envExample.includes("LEAD_TO_EMAIL="), "lead recipient environment variable is documented");
+assert(envExample.includes("REPORT_COPY_TO="), "private report-copy environment variable is documented");
 assert(envExample.includes("SUPABASE_URL="), "Supabase URL is documented");
 assert(envExample.includes("SUPABASE_SECRET_KEY="), "Supabase secret key is documented");
 assert(envExample.includes("SUPABASE_ANALYTICS_TABLE="), "Supabase analytics table is documented");
+assert(envExample.includes("SUPABASE_REPORT_REQUESTS_TABLE="), "Supabase report-request table is documented");
 assert(envExample.includes("ANALYTICS_WEBHOOK_URL="), "optional analytics webhook is documented");
-assert(supabaseSql.includes("enable row level security"), "Supabase analytics table enables RLS");
-assert(supabaseSql.includes("revoke all"), "browser roles are denied analytics-table access");
+assert(analyticsSql.includes("enable row level security"), "Supabase analytics table enables RLS");
+assert(analyticsSql.includes("revoke all"), "browser roles are denied analytics-table access");
+assert(reportSql.includes("enable row level security"), "Supabase report-request table enables RLS");
+assert(reportSql.includes("revoke all"), "browser roles are denied report-request table access");
+assert(reportSql.includes("recipient_email"), "report-request schema includes the intended recipient");
+assert(!reportSql.includes("chat_transcript"), "report-request schema excludes the chat transcript");
 assert(packageJson.dependencies?.nodemailer, "Nodemailer dependency is declared");
+assert(packageJson.scripts?.check?.includes("api/report-store.js"), "report-store syntax is included in automated checks");
 
-const combined = [app, practice, gateway, analytics, envExample, supabaseSql].join("\n");
+const combined = [app, practice, gateway, analytics, reportStore, envExample, analyticsSql, reportSql].join("\n");
 const smtpPasswordLine = envExample.split(/\r?\n/).find((line) => line.startsWith("SMTP_PASSWORD="));
 assert(!/sk-(?:proj|ant)-[A-Za-z0-9_-]{20,}/.test(combined), "no API key is committed");
 assert(!/sb_secret_[A-Za-z0-9_-]{20,}/.test(combined), "no Supabase secret key is committed");
