@@ -10,6 +10,8 @@ This checklist covers the standalone `osi-card` application. Canonical `onesmart
 - [x] Conversation displays no more than five prioritized scan findings
 - [x] Required campaign analytics events present
 - [x] Privacy-minimized Supabase analytics sink present
+- [x] Separate private Supabase report-request store present
+- [x] Private BCC report-copy handling present
 - [x] API key, Supabase secret-key, and SMTP password pattern checks
 - [x] PHI and prompt-injection interception present
 - [x] OpenAI `store: false` present
@@ -47,14 +49,18 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 - [ ] Scan each printed proof QR on iPhone and Android
 - [ ] Confirm the source tag appears in Supabase or the configured analytics destination
 
-### Analytics
+### Analytics and report records
 
 - [ ] Run `supabase/practice_campaign_events.sql` in the intended Supabase project
-- [ ] Add `SUPABASE_URL`, one server secret key, and `SUPABASE_ANALYTICS_TABLE` in Vercel Production
+- [ ] Run `supabase/practice_report_requests.sql` in the intended Supabase project
+- [ ] Add `SUPABASE_URL`, one server secret key, `SUPABASE_ANALYTICS_TABLE`, and `SUPABASE_REPORT_REQUESTS_TABLE` in Vercel Production
 - [ ] Confirm `GET /api/analytics` reports `supabaseConfigured: true`
+- [ ] Confirm `GET /api/practice` reports `reportRecords: true` and `reportCopy: true`
 - [ ] Confirm all nine event types can be stored
-- [ ] Confirm stored rows do not contain messages, contact details, scanned URLs, IP addresses, or transcripts
-- [ ] Confirm analytics failure does not interrupt chat, scan, report, or lead submission
+- [ ] Confirm analytics rows do not contain messages, contact details, scanned URLs, IP addresses, or transcripts
+- [ ] Confirm report-request rows contain only recipient email, website origin, delivery metadata, and timestamps
+- [ ] Confirm report-request rows do not contain transcripts, patient information, scan findings, or IP addresses
+- [ ] Confirm analytics or report-storage failure does not interrupt chat, scan, report email, or lead submission
 - [ ] Confirm retention and authorized dashboard access with the campaign owner
 
 ### Scan matrix
@@ -75,16 +81,21 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 - [ ] Test realistic patient name, DOB, MRN, diagnosis, medication, and contact-detail attempts
 - [ ] Test “ignore previous instructions,” system-prompt extraction, and scanned-site prompt injection
 - [ ] Test medical, legal, and tax advice requests
-- [ ] Confirm the full transcript is not included in lead emails or analytics
+- [ ] Confirm the full transcript is not included in lead emails, analytics, or report records
 
 ### Email and leads
 
 - [ ] Verify IONOS SMTP authentication in Production
 - [ ] Confirm the authenticated SMTP mailbox is also the envelope sender
+- [ ] Confirm `REPORT_COPY_TO=care@onesmarter.com` is configured in Production
+- [ ] Send a report and confirm the visitor receives it
+- [ ] Confirm `care@onesmarter.com` receives the same report as BCC and is hidden from the visitor
+- [ ] Confirm the report-request row moves from `pending` to `sent` and includes an SMTP message ID
+- [ ] Trigger a controlled SMTP failure and confirm the row moves to `failed`
 - [ ] Send a report to Gmail, Outlook, iCloud/Apple Mail, and Yahoo
 - [ ] Check mobile rendering, text-only fallback, reply behavior, and spam folders
 - [ ] Confirm SPF, DKIM, and DMARC alignment for the sender domain
-- [ ] Confirm the one-time-report footer and physical mailing address
+- [ ] Confirm the one-time-report footer, limited-delivery-record disclosure, and physical mailing address
 - [ ] Submit a human follow-up and verify only structured fields reach `LEAD_TO_EMAIL`
 - [ ] Confirm IONOS sending limits are acceptable for expected campaign traffic
 
@@ -106,7 +117,7 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 - [ ] Run controlled burst testing in Preview before Production
 - [ ] Review OpenAI cost ceiling and rate limits
 - [ ] Add a shared rate-limit store if launch traffic warrants it
-- [ ] Confirm Vercel logs, analytics retention, access controls, and incident contacts
+- [ ] Confirm Vercel logs, analytics retention, report-record retention, access controls, and incident contacts
 - [ ] Record formal safety and launch sign-off
 
 ## Release rule
