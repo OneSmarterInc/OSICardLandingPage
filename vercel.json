@@ -4,7 +4,7 @@
   "routes": [
     {
       "src": "/api/practice",
-      "dest": "/api/practice-smtp.js"
+      "dest": "/api/practice-smtp"
     },
     {
       "src": "/practices/?",
