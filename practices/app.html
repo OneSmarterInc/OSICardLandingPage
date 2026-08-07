@@ -438,7 +438,6 @@
     if (!text) return;
 
     input.value = "";
-    hideStarters();
     if (!conversationStarted) {
       conversationStarted = true;
       track("conversation_started");
@@ -498,14 +497,13 @@
   }
 
   const starters = document.getElementById("starters");
-  function hideStarters() {
-    if (starters) starters.style.display = "none";
-  }
   if (starters) {
     for (const btn of starters.querySelectorAll("[data-starter]")) {
       btn.addEventListener("click", () => {
         input.value = btn.getAttribute("data-starter") || "";
         track("starter_used");
+        btn.remove();
+        if (!starters.querySelector("[data-starter]")) starters.style.display = "none";
         form.requestSubmit();
       });
     }
