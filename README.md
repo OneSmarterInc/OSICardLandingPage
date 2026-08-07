@@ -6,7 +6,7 @@ This project provides the conversational landing page used by the OneSmarter phy
 
 - `POST /api/practice` with `action: "scan"` — deterministic Option A public website scan
 - `POST /api/practice` with `action: "scan_report"` — scans and sends a requested report in one server operation when an email was supplied early
-- `POST /api/practice` with `action: "chat"` — OpenAI-powered practice agent with deterministic safety interception and output corrections
+- `POST /api/practice` with `action: "chat"` — Claude-powered (Anthropic API) practice agent with deterministic safety interception and output corrections
 - `POST /api/practice` with `action: "report"` — sends the measured report through IONOS SMTP
 - `POST /api/practice` with `action: "lead"` — sends a structured human follow-up request without the full transcript
 - `GET /api/practice` — integration health without exposing secrets
@@ -77,8 +77,8 @@ Only these structured fields are emailed to `LEAD_TO_EMAIL`. The full transcript
 Add these in Vercel for Development, Preview, and Production:
 
 ```text
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-4.1-mini
+ANTHROPIC_API_KEY=your_anthropic_api_key
+ANTHROPIC_MODEL=claude-haiku-4-5-20251001
 
 SMTP_HOST=smtp.ionos.com
 SMTP_PORT=465
@@ -135,7 +135,7 @@ Requested reports use `REPORT_COPY_TO` as BCC and write a limited operational de
 - prompt-extraction and instruction-override attempts are refused before the model
 - medical, legal, and tax advice requests are redirected
 - trust-language output is deterministically corrected
-- OpenAI calls use `store: false`
+- Anthropic API calls retain nothing server-side; no retention features are enabled
 - SMTP, OpenAI, and Supabase credentials remain server-side
 - analytics excludes contact details and transcripts
 - report records exclude transcripts, patient information, IP addresses, and scan findings

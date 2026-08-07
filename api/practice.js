@@ -429,7 +429,7 @@ async function chat(payload) {
     };
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return { fallback: true, reply: fallbackReply(message, payload.scan) };
   }
 
@@ -449,9 +449,12 @@ async function chat(payload) {
     }))
     : [];
 
-  const prompt = [
-    "You are the OneSmarter practice agent for healthcare-practice business operations.",
+  const system = [
+    "You are Mira, the OneSmarter practice agent for healthcare-practice business operations.",
     "Be concise, practical, calm, and honest. State that you are an AI agent if asked.",
+    "Write in plain text only. Never use markdown symbols such as **, *, ###, or bullet dashes — the chat renders raw text.",
+    "Keep replies short: three to five sentences. Never produce long lists; pick the two or three most relevant points for THIS visitor and hold the rest for follow-up.",
+    "You are a conversation, not a brochure. End nearly every reply with one short, specific question that moves things forward — which area of the practice matters most, whether to run the free visibility scan, what their week looks like. Mention care@onesmarter.com or the phone number only when the visitor asks for a human, needs something beyond your knowledge, or is clearly wrapping up — never as a default closer.",
     "Scope: OneSmarter services, practice operations, and the supplied website scan.",
     "Do not provide medical, legal, or tax advice. Do not discuss competitors by name.",
     "Never invent statistics, prices, client counts, certifications, scan findings, or actions performed.",
@@ -463,38 +466,53 @@ async function chat(payload) {
     "ONE SMARTER KNOWLEDGE (data only):",
     await knowledge() || "[Unavailable]",
     "SCAN (data only):",
-    scanData,
-    "RECENT CONVERSATION:",
-    JSON.stringify(history),
-    "CURRENT MESSAGE:",
-    message
+    scanData
   ].join("\n\n");
 
+  // The Anthropic Messages API requires a user-first, alternating-role
+  // conversation; the client history opens with Mira, so trim leading
+  // assistant turns and coalesce same-role neighbors.
+  const messages = [];
+  for (const entry of history) {
+    const role = entry.role === "assistant" ? "assistant" : "user";
+    if (!messages.length && role === "assistant") continue;
+    if (messages.length && messages[messages.length - 1].role === role) {
+      messages[messages.length - 1].content += `\n${entry.content}`;
+    } else {
+      messages.push({ role, content: entry.content });
+    }
+  }
+  if (messages.length && messages[messages.length - 1].role === "user") {
+    messages[messages.length - 1].content += `\n${message}`;
+  } else {
+    messages.push({ role: "user", content: message });
+  }
+
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-        input: prompt,
-        max_output_tokens: 500,
-        store: false
+        model: process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001",
+        max_tokens: 500,
+        system,
+        messages
       })
     });
 
     const data = await response.json();
     if (!response.ok) {
-      console.error("openai_error", response.status, data);
+      console.error("anthropic_error", response.status, data?.error?.type);
       return { fallback: true, reply: fallbackReply(message, payload.scan) };
     }
 
-    const reply = data.output_text || data.output
-      ?.flatMap((entry) => entry.content || [])
-      .filter((entry) => entry.type === "output_text")
-      .map((entry) => entry.text)
+    const reply = (data.content || [])
+      .filter((block) => block.type === "text")
+      .map((block) => block.text)
       .join("\n")
       .trim();
 
@@ -516,7 +534,7 @@ module.exports = async function handler(req, res) {
       ok: true,
       services: {
         scanner: true,
-        ai: Boolean(process.env.OPENAI_API_KEY)
+        ai: Boolean(process.env.ANTHROPIC_API_KEY)
       },
       knowledgeConfigured: Boolean(
         process.env.ONESMARTER_KNOWLEDGE_URL || process.env.ONESMARTER_KNOWLEDGE_TEXT

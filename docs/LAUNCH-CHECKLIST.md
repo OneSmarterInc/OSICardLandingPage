@@ -14,7 +14,7 @@ This checklist covers the standalone `osi-card` application. Canonical `onesmart
 - [x] Private BCC report-copy handling present
 - [x] API key, Supabase secret-key, and SMTP password pattern checks
 - [x] PHI and prompt-injection interception present
-- [x] OpenAI `store: false` present
+- [x] Anthropic Messages API used; no server-side retention enabled
 - [x] Structured human-follow-up action present
 - [x] Early email plus URL server flow present
 - [x] Unused Resend report transport removed
@@ -112,10 +112,10 @@ Add `SMOKE_SCAN_URL` to include a live public scan.
 
 ### Performance and operations
 
-- [ ] Confirm first message appears without waiting for OpenAI
+- [ ] Confirm first message appears without waiting for the model API
 - [ ] Test model-down, SMTP-down, and Supabase-down fallbacks
 - [ ] Run controlled burst testing in Preview before Production
-- [ ] Review OpenAI cost ceiling and rate limits
+- [ ] Review Anthropic API spend limit and rate limits
 - [ ] Add a shared rate-limit store if launch traffic warrants it
 - [ ] Confirm Vercel logs, analytics retention, report-record retention, access controls, and incident contacts
 - [ ] Record formal safety and launch sign-off
