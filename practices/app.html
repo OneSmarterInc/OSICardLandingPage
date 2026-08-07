@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>OneSmarter Practice Agent</title>
+  <title>OneSmarter, Inc. — Practice Agent</title>
   <meta name="description" content="Talk with the OneSmarter practice agent or run a factual AI-visibility scan of your practice website.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
     *{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(70rem 35rem at 80% -10%,rgba(220,38,38,.12),transparent 60%),var(--bg);color:var(--text);font-family:Archivo,system-ui,sans-serif}
     a{color:inherit}.skip{position:absolute;left:12px;top:-80px;background:white;color:black;padding:10px 14px;border-radius:8px;z-index:20}.skip:focus{top:12px}
     :focus-visible{outline:3px solid var(--focus);outline-offset:3px}.wrap{width:min(980px,100%);margin:auto;padding:0 clamp(16px,4vw,40px)}
-    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0}.brand{font-size:20px;font-weight:700;letter-spacing:-.03em}.brand span{color:var(--red)}.human{font-size:13px;color:var(--muted)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0}.brand{font-size:20px;font-weight:700;letter-spacing:-.03em;color:var(--text);text-decoration:none}.brand span{color:var(--red)}.human{font-size:13px;color:var(--muted)}
     main{padding:24px 0 48px}.kicker{color:var(--red);font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase}h1{max-width:760px;margin:12px 0 10px;font-size:clamp(30px,6vw,56px);line-height:1.04;letter-spacing:-.04em}.accent{font-family:"Instrument Serif",serif;font-style:italic;color:var(--red);font-weight:400}.lead{max-width:720px;color:var(--muted);font-size:16px;line-height:1.65}
     .agent{margin-top:26px;border:1px solid var(--line);border-radius:18px;background:rgba(21,21,23,.92);overflow:hidden;box-shadow:0 22px 70px rgba(0,0,0,.28)}.agentHead{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;background:var(--red)}.log{height:min(56vh,520px);min-height:360px;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}.msg{max-width:88%;padding:12px 14px;border-radius:15px;line-height:1.55;font-size:15px;white-space:pre-wrap}.assistant{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}.user{align-self:flex-end;background:var(--red);border-bottom-right-radius:4px}.system{align-self:center;color:var(--muted);font-size:13px;padding:4px}.findings{width:min(100%,760px);align-self:flex-start;display:grid;gap:9px}.finding{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}.findingTop{display:flex;justify-content:space-between;gap:14px;font-weight:600}.badge{font-size:11px;text-transform:uppercase;letter-spacing:.08em}.badge.good{color:var(--good)}.badge.review,.badge.missing{color:var(--warn)}.badge.issue{color:var(--bad)}.evidence,.recommendation{margin-top:7px;color:var(--muted);font-size:13px;line-height:1.5}.recommendation strong{color:var(--text)}
     .composer{display:flex;gap:9px;padding:13px;border-top:1px solid var(--line)}.composer input{min-width:0;flex:1;border:1px solid #3f3f46;background:#111113;color:var(--text);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px}.composer button{border:0;border-radius:12px;background:var(--red);color:white;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}.composer button:disabled{opacity:.55;cursor:not-allowed}.note{padding:0 16px 13px;color:var(--muted);font-size:11.5px}
@@ -69,7 +69,7 @@
   <a class="skip" href="#practice-agent">Skip to practice agent</a>
   <div class="wrap">
     <header>
-      <div class="brand" aria-label="OneSmarter">One<span>Smarter</span></div>
+      <a class="brand" href="https://onesmarter.com" target="_blank" rel="noopener" aria-label="OneSmarter, Inc. — opens onesmarter.com in a new tab">One<span>Smarter</span>, Inc.</a>
       <div class="human">Prefer a human? <a id="human-link" href="mailto:care@onesmarter.com">care@onesmarter.com</a></div>
     </header>
     <main id="main-content">
@@ -102,11 +102,11 @@
         <h2 id="value-h">What OneSmarter does for a practice — and for you.</h2>
         <p class="blockIntro">Five promises, each backed by the same team and tools. Ask Mira about any of them — the buttons drop the question straight into the chat.</p>
         <div class="props">
-          <div class="prop"><h3>Stop losing revenue to <span>process</span>.</h3><p class="proof">AI-powered cash flow management, plus streamlined billing, AP, and accounting workflows — the manual steps where money stalls get fixed, and what&rsquo;s coming becomes visible.</p><button type="button" class="askBtn" data-ask="How would you streamline my billing and cash flow workflows so revenue stops stalling?">Ask Mira how →</button></div>
+          <div class="prop"><h3>Stop losing revenue to <span>process</span>.</h3><p class="proof">AI-powered cash flow management, plus streamlined billing, bill-paying, and bookkeeping workflows — the manual steps where money stalls get fixed, and what&rsquo;s coming becomes visible.</p><button type="button" class="askBtn" data-ask="How would you streamline my billing and cash flow workflows so revenue stops stalling?">Ask Mira how →</button></div>
           <div class="prop"><h3>The clinic closes. The practice <span>stays open</span>.</h3><p class="proof">AI agents keep answering after hours — appointment requests, common questions, messages — while scheduling, front desk, and workflow tools keep the daytime running on time. Your staff goes home; the morning starts caught up.</p><button type="button" class="askBtn" data-ask="How would an AI agent handle my practice's after-hours calls and appointment requests?">Ask Mira how →</button></div>
           <div class="prop"><h3>Credentialing is paperwork. Paperwork is <span>our thing</span>.</h3><p class="proof">HR, hiring, credentialing — from job post to credentialed provider, handled today. And hiring is where our agents are headed next: agent-assisted hiring is in development, and Mira can note your interest in an early look.</p><button type="button" class="askBtn" data-ask="What help do you offer with hiring and credentialing — and what's coming with hiring agents?">Ask Mira how →</button></div>
           <div class="prop"><h3>You have a specialty. Compliance is <span>ours</span>.</h3><p class="proof">HIPAA, security, and ISO/IEC 27001 readiness — handled like it&rsquo;s our license on the line, with requirements tightening in 2026. And we live it ourselves: OneSmarter is independently examined against the same kinds of standards.</p><button type="button" class="askBtn" data-ask="How do you keep a practice compliant as HIPAA and security requirements tighten in 2026?">Ask Mira how →</button></div>
-          <div class="prop"><h3>AI can&rsquo;t recommend what it <span>can&rsquo;t read</span>.</h3><p class="proof">Structured data, machine-readable content, crawler access — the visibility work that decides whether the AI tools patients ask can find and understand your practice. That&rsquo;s what increases your AI visibility, and Mira will measure yours right now, free.</p><button type="button" class="askBtn" data-ask="Run the AI-visibility scan on my practice website.">Ask Mira how →</button></div>
+          <div class="prop"><h3>AI can&rsquo;t recommend what it <span>can&rsquo;t read</span>.</h3><p class="proof">Patients used to Google a doctor. Now they ask ChatGPT and other AI assistants — and an assistant can only recommend a practice whose website it can actually read. We do the work that makes your site readable to AI, and Mira can measure where yours stands right now, free.</p><button type="button" class="askBtn" data-ask="Run the AI-visibility scan on my practice website.">Ask Mira how →</button></div>
         </div>
       </section>
 
@@ -115,7 +115,7 @@
         <h2 id="scan-h">Where does your practice stand with AI search?</h2>
         <div class="scanStrip">
           <h3>The AI-visibility scan</h3>
-          <p>Give Mira your website address and she checks what an AI assistant can actually work with: HTTPS, structured data describing the practice, whether AI crawlers are allowed in, llms.txt, headings, image alt-text signals, and visible contact details. Every finding comes with its evidence — no sample results, no invented scores — and the full written report can be emailed. <button type="button" class="askBtn" data-ask-focus="true">Start the scan →</button></p>
+          <p>Give Mira your website address and she checks it the way an AI assistant would: can it find your practice, understand what you offer, and see how to reach you. Every finding comes with its evidence — no sample results, no invented scores — and the full written report, with the technical details, can be emailed. <button type="button" class="askBtn" data-ask-focus="true">Start the scan →</button></p>
         </div>
       </section>
 
@@ -136,7 +136,7 @@
   </div>
   <footer class="wrap">
       <div class="trust">
-        <strong>One Smarter, Inc.</strong> · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459<br>
+        <strong>OneSmarter, Inc.</strong> · 707 Miamisburg Centerville Road, #223, Dayton, OH 45459<br>
         <a href="https://onesmarter.com">onesmarter.com</a> · <a href="mailto:care@onesmarter.com">care@onesmarter.com</a> · <a href="https://onesmarter.com/trust-center">Trust Center</a> · <a href="https://onesmarter.com/privacy">Privacy</a><br>
         <span class="pipes"><span>SOC 2 Type II Attested |</span> <span>ISO/IEC 27001 Certified |</span> <span>HIPAA Security Rule Compliance Assessment Completed</span></span><br>
         Consistent with federal website-accessibility standards (WCAG 2.1 AA, ADA / ACA Section 1557).
