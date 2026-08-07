@@ -1,13 +1,13 @@
 {
   "name": "osi-card-landing-page",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.3.1",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "check": "node --check api/practice.js && node --check api/practice-smtp.js && node --check api/report-store.js && node --check api/analytics.js && node --check scripts/validate.mjs && node --check scripts/unit.mjs && node --check scripts/smoke.mjs",
-    "test": "node scripts/validate.mjs && node scripts/unit.mjs",
+    "check": "node --check api/practice.js && node --check api/practice-smtp.js && node --check api/practice-entry.js && node --check api/report-store.js && node --check api/analytics.js && node --check scripts/validate.mjs && node --check scripts/unit.mjs && node --check scripts/lead-contact-unit.mjs && node --check scripts/smoke.mjs",
+    "test": "node scripts/validate.mjs && node scripts/unit.mjs && node scripts/lead-contact-unit.mjs",
     "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
