@@ -154,8 +154,13 @@ function sanitizeAgentReply(value, payload) {
   if (!reply) return "";
 
   // The chat renders plain text; strip markdown scaffolding the model or the
-  // knowledge base may carry (bold, headings) so visitors never see ** or ###.
-  reply = reply.replace(/\*\*/g, "").replace(/^#{1,4}\s*/gm, "");
+  // knowledge base may carry (bold, italics, headings, bullet markers) so
+  // visitors never see **, *emphasis*, ###, or leading dashes.
+  reply = reply
+    .replace(/\*\*/g, "")
+    .replace(/\*(\S(?:[^*\n]*\S)?)\*/g, "$1")
+    .replace(/^#{1,4}\s*/gm, "")
+    .replace(/^\s*[-•*]\s+/gm, "");
 
   reply = reply
     .replace(/\bSOC\s*2(?:\s*Type\s*II)?\s+(?:certified|certification)\b/gi, "SOC 2 Type II Attested")
