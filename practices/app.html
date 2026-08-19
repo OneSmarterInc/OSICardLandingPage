@@ -158,7 +158,16 @@
   "use strict";
 
   const rawSource = new URLSearchParams(location.search).get("s");
-  const sourceTag = (rawSource || "none").slice(0, 20);
+  const cleanPath = location.pathname.replace(/\/+$/, "").toLowerCase();
+  const pathSource = cleanPath === "/a"
+    ? "qra"
+    : cleanPath === "/b"
+      ? "qrb"
+      : (cleanPath === "" || cleanPath === "/")
+        ? "qr"
+        : null;
+  // Legacy ?s=qr/qra/qrb links take priority so already-printed cards keep working.
+  const sourceTag = (rawSource || pathSource || "none").slice(0, 20);
   const sessionId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   const log = document.getElementById("log");
   const form = document.getElementById("composer");
