@@ -3,23 +3,23 @@ from pathlib import Path
 import qrcode
 
 
-BASE_URL = "https://qr-scan-med.vercel.app/practices"
+BASE_URL = "https://cards.onesmarter.com"
 
 OUTPUT_FOLDER = Path("qr-codes-production")
 OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
 QR_URLS = {
-    # Current/older Postcard A tag
+    # Default/current card experience
     "postcard-a-qr-production.png":
-        f"{BASE_URL}?s=qr",
+        f"{BASE_URL}/",
 
-    # Future Postcard A A/B-test tag
+    # Postcard A A/B-test experience
     "postcard-a-qra-production.png":
-        f"{BASE_URL}?s=qra",
+        f"{BASE_URL}/a",
 
-    # Postcard B tag
+    # Postcard B experience
     "postcard-b-qrb-production.png":
-        f"{BASE_URL}?s=qrb",
+        f"{BASE_URL}/b",
 }
 
 
