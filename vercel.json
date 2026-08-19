@@ -54,17 +54,17 @@
       "permanent": false
     },
     {
-      "source": "^/(?!api(?:/|$)|practices(?:/|$)|qr-codes(?:-production)?(?:/|$)|docs(?:/|$))(.+[aA])/?$",
+      "source": "/:path(.+[aA])",
       "destination": "/a",
       "permanent": false
     },
     {
-      "source": "^/(?!api(?:/|$)|practices(?:/|$)|qr-codes(?:-production)?(?:/|$)|docs(?:/|$))(.+[bB])/?$",
+      "source": "/:path(.+[bB])",
       "destination": "/b",
       "permanent": false
     },
     {
-      "source": "^/(?![aAbB]/?$|api(?:/|$)|practices(?:/|$)|qr-codes(?:-production)?(?:/|$)|docs(?:/|$))(.+)$",
+      "source": "/:path((?![aAbB]$|api/|api$|practices/|practices$|qr-codes/|qr-codes$|qr-codes-production/|qr-codes-production$|docs/|docs$).+)",
       "destination": "/",
       "permanent": false
     }
