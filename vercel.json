@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "trailingSlash": false,
+  "buildCommand": "npm run build",
   "functions": {
     "api/practice.js": {
       "maxDuration": 30
@@ -54,12 +55,12 @@
       "permanent": false
     },
     {
-      "source": "/:path(.+[aA])",
+      "source": "/:path((?!api/|api$|practices/|practices$|qr-codes/|qr-codes$|qr-codes-production/|qr-codes-production$|docs/|docs$).+[aA])",
       "destination": "/a",
       "permanent": false
     },
     {
-      "source": "/:path(.+[bB])",
+      "source": "/:path((?!api/|api$|practices/|practices$|qr-codes/|qr-codes$|qr-codes-production/|qr-codes-production$|docs/|docs$).+[bB])",
       "destination": "/b",
       "permanent": false
     },
@@ -72,25 +73,15 @@
   "rewrites": [
     {
       "source": "/",
-      "has": [
-        {
-          "type": "query",
-          "key": "s"
-        }
-      ],
       "destination": "/practices/app.html"
     },
     {
-      "source": "/",
-      "destination": "/practices/app.html?s=qr"
-    },
-    {
       "source": "/a",
-      "destination": "/practices/app.html?s=qra"
+      "destination": "/practices/app.html"
     },
     {
       "source": "/b",
-      "destination": "/practices/app.html?s=qrb"
+      "destination": "/practices/app.html"
     },
     {
       "source": "/api/practice",
