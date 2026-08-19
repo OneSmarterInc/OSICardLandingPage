@@ -17,7 +17,7 @@
   },
   "headers": [
     {
-      "source": "/practices(.*)",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "X-Content-Type-Options",
@@ -42,18 +42,53 @@
       ]
     }
   ],
-  "routes": [
+  "redirects": [
     {
-      "src": "/",
-      "dest": "/practices/app.html"
+      "source": "/A",
+      "destination": "/a",
+      "permanent": false
     },
     {
-      "src": "/api/practice",
-      "dest": "/api/practice-entry"
+      "source": "/B",
+      "destination": "/b",
+      "permanent": false
     },
     {
-      "src": "/practices/?",
-      "dest": "/practices/app.html"
+      "source": "/:path((?!api/|api$|practices/|practices$|qr-codes/|qr-codes$|qr-codes-production/|qr-codes-production$|docs/|docs$).+[aA])",
+      "destination": "/a",
+      "permanent": false
+    },
+    {
+      "source": "/:path((?!api/|api$|practices/|practices$|qr-codes/|qr-codes$|qr-codes-production/|qr-codes-production$|docs/|docs$).+[bB])",
+      "destination": "/b",
+      "permanent": false
+    },
+    {
+      "source": "/:path((?![aAbB]$|api/|api$|practices/|practices$|qr-codes/|qr-codes$|qr-codes-production/|qr-codes-production$|docs/|docs$).+)",
+      "destination": "/",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/practices/app.html"
+    },
+    {
+      "source": "/a",
+      "destination": "/practices/app.html"
+    },
+    {
+      "source": "/b",
+      "destination": "/practices/app.html"
+    },
+    {
+      "source": "/api/practice",
+      "destination": "/api/practice-entry"
+    },
+    {
+      "source": "/practices",
+      "destination": "/practices/app.html"
     }
   ]
 }
