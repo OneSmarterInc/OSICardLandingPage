@@ -10,7 +10,6 @@ const assert = (condition, message) => {
 
 const config = JSON.parse(read("vercel.json"));
 const app = read("practices/app.html");
-const sourcePatch = read("scripts/prepare-card-source.mjs");
 const qrGenerator = read("generate_qr.py");
 const rewrites = config.rewrites || [];
 const redirects = config.redirects || [];
@@ -19,7 +18,7 @@ const findRewrite = (source, destination) =>
   rewrites.find((rule) => rule.source === source && rule.destination === destination);
 
 assert(!config.routes, "legacy advanced routes are replaced by redirects/rewrites");
-assert(config.buildCommand === "npm run build", "Vercel runs the clean-path source preparation step");
+assert(!config.buildCommand, "existing static deployment model is unchanged");
 assert(findRewrite("/", "/practices/app.html"), "clean root serves the practice app");
 assert(findRewrite("/a", "/practices/app.html"), "clean /a serves the practice app");
 assert(findRewrite("/b", "/practices/app.html"), "clean /b serves the practice app");
@@ -45,15 +44,12 @@ assert(
   "wildcard a/b redirects exclude API paths"
 );
 
+assert(app.includes('new URLSearchParams(location.search).get("s")'), "legacy ?s= source detection remains intact");
+assert(app.includes('cleanPath === "/a"'), "clean /a maps to qra in browser logic");
+assert(app.includes('cleanPath === "/b"'), "clean /b maps to qrb in browser logic");
+assert(app.includes('? "qr"'), "clean root maps to qr in browser logic");
 assert(
-  app.includes('new URLSearchParams(location.search).get("s")'),
-  "existing ?s=qr/qra/qrb source-tag logic remains intact in source"
-);
-assert(sourcePatch.includes('cleanPath === "/a"'), "build patch maps /a to qra");
-assert(sourcePatch.includes('cleanPath === "/b"'), "build patch maps /b to qrb");
-assert(sourcePatch.includes('? "qr"'), "build patch maps clean root to qr");
-assert(
-  sourcePatch.includes('rawSource || pathSource || "none"'),
+  app.includes('rawSource || pathSource || "none"'),
   "legacy query source takes priority over clean path source"
 );
 
