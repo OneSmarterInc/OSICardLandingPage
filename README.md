@@ -118,7 +118,7 @@ At launch the agent reads the configured generated OneSmarter AI file. `llms-ful
 
 ## Email delivery
 
-Report and lead emails use IONOS SMTP only. The old unused Resend path has been removed from `api/practice.js`. The SMTP envelope sender is forced to the authenticated mailbox while `SMTP_REPLY_TO` remains reply-able. Safe SMTP diagnostics redact email addresses before writing errors to Vercel logs.
+Report and lead emails use IONOS SMTP only. The old unused Resend path has been removed from the core handler (`lib/practice-core.js`). The SMTP envelope sender is forced to the authenticated mailbox while `SMTP_REPLY_TO` remains reply-able. Safe SMTP diagnostics redact email addresses before writing errors to Vercel logs.
 
 Requested reports use `REPORT_COPY_TO` as BCC and write a limited operational delivery record to `practice_report_requests`. The email footer tells the visitor that a limited delivery record is retained and that no marketing subscription was created.
 

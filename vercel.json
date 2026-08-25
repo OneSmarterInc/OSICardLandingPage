@@ -3,12 +3,9 @@
   "trailingSlash": false,
   "functions": {
     "api/practice.js": {
-      "maxDuration": 30
-    },
-    "api/practice-smtp.js": {
       "maxDuration": 60
     },
-    "api/practice-entry.js": {
+    "api/practice-smtp.js": {
       "maxDuration": 60
     },
     "api/analytics.js": {
@@ -81,10 +78,6 @@
     {
       "source": "/b",
       "destination": "/practices/app.html"
-    },
-    {
-      "source": "/api/practice",
-      "destination": "/api/practice-entry"
     },
     {
       "source": "/practices",
