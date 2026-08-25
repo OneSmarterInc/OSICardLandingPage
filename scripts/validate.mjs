@@ -13,6 +13,7 @@ const assert = (condition, message) => {
 };
 
 const app = read("practices/app.html");
+const legacyApp = read("practices/index.html");
 const practice = read("lib/practice-core.js");
 const entry = read("api/practice.js");
 const gateway = read("api/practice-smtp.js");
@@ -33,6 +34,11 @@ assert(app.includes('href="#practice-agent"'), "keyboard skip link exists");
 assert(app.includes("Do not enter patient information"), "PHI warning is visible");
 assert(app.includes('action: "lead"'), "structured human follow-up flow exists");
 assert(app.includes('action: "scan_report"'), "URL plus early email flow exists");
+assert(
+  app.includes('href="https://www.onesmarter.com/policies/privacy-policy"') &&
+    legacyApp.includes('href="https://www.onesmarter.com/policies/privacy-policy"'),
+  "privacy footer links use the live policy URL"
+);
 
 for (const event of [
   "page_view",
