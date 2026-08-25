@@ -165,7 +165,7 @@ function sanitizeAgentReply(value, payload) {
   reply = reply
     .replace(/\bSOC\s*2(?:\s*Type\s*II)?\s+(?:certified|certification)\b/gi, "SOC 2 Type II Attested")
     .replace(/\bHIPAA\s+(?:certified|certification)\b/gi, "HIPAA Security Rule Compliance Assessment Completed")
-    .replace(/\bISO\/IEC\s*27001\s+(?:attested|assessment completed)\b/gi, "ISO/IEC 27001 Certified");
+    .replace(/\bISO\/IEC\s*27001(?::2022)?\s+(?:attested|assessment completed)\b/gi, "ISO/IEC 27001:2022 Certified");
 
   if (/\bOneSmarter\b.{0,60}\b(?:issues|grants|awards)\b.{0,40}\b(?:certificate|certification|SOC report)\b/i.test(reply)) {
     return "OneSmarter can support readiness work, but it does not issue ISO certificates or SOC reports. For a precise services discussion, contact care@onesmarter.com.";
