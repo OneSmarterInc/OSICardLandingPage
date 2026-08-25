@@ -25,7 +25,7 @@ const reportSql = read("supabase/practice_report_requests.sql");
 const packageJson = JSON.parse(read("package.json"));
 
 assert(app.includes("SOC 2 Type II Attested |"), "immutable SOC 2 trust wording is present");
-assert(app.includes("ISO/IEC 27001 Certified |"), "immutable ISO trust wording is present");
+assert(app.includes("ISO/IEC 27001:2022 Certified |"), "immutable ISO trust wording is present (2022 edition per certificate)");
 assert(app.includes("HIPAA Security Rule Compliance Assessment Completed"), "immutable HIPAA trust wording is present");
 assert(app.includes("qr:") && app.includes("qra:") && app.includes("qrb:") && app.includes("none:"), "all source-tag openings exist");
 assert(app.includes("slice(0, 5)"), "conversation limits visible findings to five");
