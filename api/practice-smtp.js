@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const originalPracticeHandler = require("./practice.js");
+const originalPracticeHandler = require("../lib/practice-core.js");
 const reportStore = require("./report-store.js");
 
 const RATE_BUCKETS = new Map();

@@ -23,7 +23,10 @@ assert(findRewrite("/", "/practices/app.html"), "clean root serves the practice 
 assert(findRewrite("/a", "/practices/app.html"), "clean /a serves the practice app");
 assert(findRewrite("/b", "/practices/app.html"), "clean /b serves the practice app");
 assert(findRewrite("/practices", "/practices/app.html"), "legacy /practices route remains available");
-assert(findRewrite("/api/practice", "/api/practice-entry"), "practice API routing remains unchanged");
+assert(!rewrites.some((rule) => rule.source === "/api/practice"), "no /api/practice rewrite — the physical api/practice.js IS the gateway entry (a rewrite is shadowed by the filesystem and bypasses the gateway)");
+assert(read("api/practice.js").includes('require("./practice-smtp.js")'), "api/practice.js chains into the gateway");
+assert(!fs.existsSync(path.join(root, "api/practice-entry.js")), "old practice-entry endpoint is removed");
+assert(fs.existsSync(path.join(root, "lib/practice-core.js")), "core handler lives outside api/ so it is not directly routable");
 
 assert(
   redirects.some((rule) => rule.destination === "/a" && rule.source.includes("[aA]")),

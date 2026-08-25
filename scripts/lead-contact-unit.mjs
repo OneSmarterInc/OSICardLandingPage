@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const entry = require("../api/practice-entry.js");
+const entry = require("../api/practice.js");
 const { normalizeLeadContact } = entry._test;
 
 function assert(condition, message) {
